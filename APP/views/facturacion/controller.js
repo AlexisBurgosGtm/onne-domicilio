@@ -611,7 +611,7 @@ let controllerventa = {
         let filtro = document.getElementById(idFiltro).value;
         let tabla = document.getElementById(idTablaResultado);
         tabla.innerHTML = GlobalLoader;
-
+        
 
         let str = ""; 
         axios.get('/ventas/buscarproducto?empnit=' + GlobalEmpnit + '&filtro=' + filtro + '&app=' + GlobalSistema + '&sucursal=' + GlobalSelectedSucursal.value)
@@ -648,13 +648,14 @@ let controllerventa = {
         });
 
     },
-    fcnAgregarProductoVenta: async function(coddoc,codprod,desprod,codmedida,cantidad,equivale,totalunidades,costo,precio,exento){
+    fcnAgregarProductoVenta: async function(codprod,desprod,codmedida,cantidad,equivale,totalunidades,costo,precio,exento){
         document.getElementById('tblResultadoBusqueda').innerHTML = '';
+        let coddoc = document.getElementById('cmbCoddoc')
             try {        
                 
                     var data =JSON.stringify({
                         empnit:GlobalEmpnit,
-                        coddoc:coddoc,
+                        coddoc:coddoc.value,
                         sucursal:GlobalSelectedSucursal.value,
                         codprod:codprod,
                         desprod:desprod,
@@ -689,7 +690,7 @@ let controllerventa = {
                             $('#ModalBusqueda').modal('hide')
                             await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
                             await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
-                            socket.emit('ventas nueva','Nuevo pedido disponible',GlobalSelectedSucursal.value)
+                            socket.emit('ventas nueva','Nuevo pedido disponible',GlobalSelectedSucursal.value);
                             let txbusqueda = document.getElementById('txtBusqueda');
                             txbusqueda.value = '';txbusqueda.focus();
                         }
