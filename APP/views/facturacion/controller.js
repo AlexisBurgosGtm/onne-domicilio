@@ -469,7 +469,7 @@ let controllerventa = {
     iniciarVistaVentas: async function(){
 
         controllerventa.getView();
-
+        await classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc','txtCorrelativo');
         let txtFecha = document.getElementById('txtFecha');txtFecha.value = funciones.getFecha();
         let txtEntregaFecha = document.getElementById('txtEntregaFecha');txtEntregaFecha.value = funciones.getFecha();
 
@@ -599,7 +599,7 @@ let controllerventa = {
         
         await classEmpleados.comboboxVendedores('cmbVendedor');
 
-        await classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc','txtCorrelativo');
+        
         //await classTipoDocumentos.fcnCorrelativoDocumento('PED',cmbCoddoc.value,'txtCorrelativo');
         
         await controllerventa.fcnGetMunicipios('cmbClienteMunicipio');
@@ -1079,7 +1079,8 @@ let controllerventa = {
                         funciones.Aviso('Pedido Generado Exitosamente !!!')
                         document.getElementById('btnEntregaCancelar').click();
             
-                        socket.emit('ordenes nueva',`Nueva Orden a nombre de ${ClienteNombre} por valor de ${GlobalTotalDocumento} quetzales`, GlobalSelectedForm);
+                        socket.emit('ventas nueva',`Nueva Orden a nombre de ${ClienteNombre} por valor de ${GlobalTotalDocumento} quetzales`, GlobalSelectedSucursal.value);
+                        
                         controllerventa.fcnEliminarTempVentas(GlobalUsuario);
                         controllerventa.fcnNuevoPedido();
                     }
