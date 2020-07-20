@@ -689,7 +689,7 @@ let controllerventa = {
                             $('#ModalBusqueda').modal('hide')
                             await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
                             await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
-
+                            socket.emit('ventas nueva','Nuevo pedido disponible',GlobalSelectedSucursal.value)
                             let txbusqueda = document.getElementById('txtBusqueda');
                             txbusqueda.value = '';txbusqueda.focus();
                         }

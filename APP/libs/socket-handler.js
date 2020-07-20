@@ -1,5 +1,10 @@
 const socket = io();
 
-socket.on('productos nuevo', function(msg){
-    funciones.NotificacionPersistent("Nuevo producto",msg);
+socket.on('ventas nueva', function(msg,sucursal){
+    if(GlobalSelectedForm=='DESPACHO'){
+        if(GlobalSelectedSucursal.value==sucursal){
+            funciones.NotificacionPersistent("Nuevo Pedido",msg);
+        }
+    }
+    
 });

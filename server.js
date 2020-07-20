@@ -79,22 +79,9 @@ app.use("*",function(req,res){
 // SOCKET HANDLER
 io.on('connection', function(socket){
   
-  socket.on('ordenes nueva', function(msg,form){
-	  io.emit('ordenes nueva', msg, form);
+  socket.on('ventas nueva', function(msg,sucursal){
+	  io.emit('ventas nueva', msg, sucursal);
   });
-
-  socket.on('ordenes escribiendo', function(msg,form){
-	  io.emit('ordenes escribiendo', msg, form);
-  });
-  
-  socket.on('ordenes finalizada', function(cliente,monto){
-	  io.emit('ordenes finalizada', cliente, monto);
-  });
-
-  socket.on('chat msn', function(msg,user){
-	  io.emit('chat msn', msg, user);
-  });
-  
   
 });
 
