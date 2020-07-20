@@ -648,12 +648,13 @@ let controllerventa = {
         });
 
     },
-    fcnAgregarProductoVenta: async function(codprod,desprod,codmedida,cantidad,equivale,totalunidades,costo,precio,exento){
+    fcnAgregarProductoVenta: async function(coddoc,codprod,desprod,codmedida,cantidad,equivale,totalunidades,costo,precio,exento){
         document.getElementById('tblResultadoBusqueda').innerHTML = '';
             try {        
                 
                     var data =JSON.stringify({
                         empnit:GlobalEmpnit,
+                        coddoc:coddoc,
                         sucursal:GlobalSelectedSucursal.value,
                         codprod:codprod,
                         desprod:desprod,
@@ -827,8 +828,8 @@ let controllerventa = {
         let f = funciones.getFecha();
 
         axios.post('/clientes/clientenuevo', {
-            app:GlobalSistema,
-            empnit: GlobalEmpnit,
+            sucursal:GlobalEmpnit,
+            empnit: GlobalSelectedSucursal.value,
             codclie:nit,
             nitclie:nit,
             nomclie:nomclie,
@@ -1048,8 +1049,8 @@ let controllerventa = {
 
                 //,,obs,usuario,codven
                 axios.post('/ventas/documentos', {
-                    app: GlobalSistema,
-                    empnit: GlobalEmpnit,
+                    sucursal: GlobalEmpnit,
+                    empnit: GlobalSelectedSucursal.value,
                     coddoc:coddoc,
                     correlativo: correlativo,
                     anio:anio,

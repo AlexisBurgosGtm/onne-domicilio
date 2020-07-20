@@ -117,6 +117,7 @@ router.post("/tempVentas", async(req,res)=>{
     let empnit = req.body.empnit;
     let usuario = req.body.usuario;
     let sucursal = req.body.sucursal;
+    let coddoc = req.body.coddoc;
 
     let codprod = req.body.codprod;
     let desprod = req.body.desprod;
@@ -134,10 +135,10 @@ router.post("/tempVentas", async(req,res)=>{
     let qry = '';
 
     qry = `INSERT INTO TEMP_VENTAS 
-            (EMPNIT,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,EXENTO,USUARIO,TOKEN) 
-    VALUES ('${sucursal}','${codprod}','${desprod}','${codmedida}',${cantidad},${equivale},${totalunidades},${costo},${precio},${totalcosto},${totalprecio},${exento},'${usuario}','${empnit}')`
+            (EMPNIT,CODDOC,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,EXENTO,USUARIO,TOKEN) 
+    VALUES ('${sucursal}','${coddoc}','${codprod}','${desprod}','${codmedida}',${cantidad},${equivale},${totalunidades},${costo},${precio},${totalcosto},${totalprecio},0,'${usuario}','${empnit}')`
     
-    
+    console.log(qry);
     
    execute.Query(res,qry);
 
@@ -171,22 +172,9 @@ router.get("/buscarcliente", async(req,res)=>{
     const {empnit,nit, app} = req.query;
     
     let qry = '';
-
-    switch (app) {
-        case 'ISC':
-            qry = `SELECT NITCLIE AS CODCLIENTE,NITFACTURA AS NIT,NOMCLIE AS NOMCLIENTE,DIRCLIE AS DIRCLIENTE,TIPOCLIE AS CATEGORIA FROM CLIENTES WHERE EMP_NIT='${empnit}' AND NITFACTURA='${nit}'`         
-            break;
-        case 'COMMUNITY':
-            
-            qry = `SELECT CODCLIENTE,NIT,NOMBRECLIENTE AS NOMCLIENTE, DIRCLIENTE,CATEGORIA FROM CLIENTES WHERE EMPNIT='${empnit}' AND HABILITADO='SI' AND NIT='${nit}'` 
-            break;
+ 
+    qry = `SELECT CODCLIENTE,NIT,NOMBRECLIENTE AS NOMCLIENTE, DIRCLIENTE,CATEGORIA FROM CLIENTES WHERE EMPNIT='${empnit}' AND HABILITADO='SI' AND NIT='${nit}'` 
     
-        default:
-            break;
-    }
-
-    
-    //let qry = `SELECT CODCLIENTE,NIT,NOMBRECLIENTE AS NOMCLIENTE, DIRCLIENTE,CATEGORIA FROM CLIENTES WHERE EMPNIT='${empnit}' AND HABILITADO='SI' AND NIT='${nit}'` 
 
     execute.Query(res,qry);
 
@@ -194,217 +182,30 @@ router.get("/buscarcliente", async(req,res)=>{
 
 // INSERTA EL ENCABEZADO DEL PEDIDO
 router.post("/documentos", async (req,res)=>{
-    const {app,empnit,anio,mes,coddoc,fecha,fechaentrega,formaentrega,nomclie,codbodega,totalcosto,totalprecio,nitclie,dirclie,obs,direntrega,usuario,codven} = req.body;
-    let correlativo = req.body.correlativo;
+    const {sucursal,empnit,anio,mes,coddoc,fecha,fechaentrega,formaentrega,nomclie,codbodega,totalcosto,totalprecio,nitclie,dirclie,obs,direntrega,usuario,codven} = req.body;
     
-    let ncorrelativo = correlativo;
-
-    switch (correlativo.toString().length) {
-        case 1:
-            correlativo = '         ' + correlativo;
-        break;
-        case 2:
-            correlativo = '        ' + correlativo;
-        break;
-        case 3:
-            correlativo = '       ' + correlativo;
-            
-        break;
-        case 4:
-            correlativo = '      ' + correlativo;
-            break;
-        case 5:
-            correlativo = '     ' + correlativo;
-            break;
-        case 6:
-            correlativo = '    ' + correlativo;
-            break;
-        case 7:
-            correlativo = '   ' + correlativo;
-            break;
-        case 8:
-            correlativo = '  ' + correlativo;
-        break;
-        case 9:
-            correlativo = ' ' + correlativo;
-        break;
-        case 10:
-            correlativo = correlativo;
-        break;
-        default:
-            break;
-    };
-    
-    let nuevocorrelativo = Number(ncorrelativo) + 1;
+    let correlativo = Number(req.body.correlativo);
+              
+    let nuevocorrelativo = Number(correlativo) + 1;
 
 
     let qry = ''; // inserta los datos en la tabla documentos
     let qrydoc = ''; // inserta los datos de la tabla docproductos
-    let qrycorrelativo = ''; //actualiza el correlativo del documento
+    let qrycorrelativo =  `UPDATE COMMUNITY_TIPODOCUMENTOS SET CORRELATIVO=${nuevocorrelativo} WHERE CODDOC='${coddoc}' AND TOKEN='${empnit}'`; //actualiza el correlativo del documento
 
-    switch (app) {
-        case 'ISC':
-            qry = `INSERT INTO DOCUMENTOS (
-                EMP_NIT, DOC_ANO, DOC_MES, CODDOC, DOC_NUMERO, 
-                CODCAJA, DOC_FECHA, DOC_NUMREF, DOC_NOMREF, BODEGAENTRADA,
-                BODEGASALIDA, USUARIO, DOC_ESTATUS, DOC_TOTALCOSTO, DOC_TOTALVENTA,
-                DOC_HORA, DOC_FVENCE, DOC_DIASCREDITO, DOC_CONTADOCREDITO, DOC_DESCUENTOTOTAL,
-                DOC_DESCUENTOPROD, DOC_PORDESCUTOTAL, DOC_IVA, DOC_SUBTOTALIVA, DOC_SUBTOTAL,
-                NITCLIE, DOC_PORDESCUFAC, CODVEN, DOC_ABONOS, DOC_SALDO,
-                DOC_VUELTO, DOC_NIT, DOC_PAGO, DOC_CODREF, DOC_TIPOCAMBIO,
-                DOC_PARCIAL, DOC_ANTICIPO, ANT_CODDOC, ANT_DOCNUMERO, DOC_OBS,
-                DOC_PORCENTAJEIVA, DOC_ENVIO, DOC_CUOTAS, DOC_TIPOCUOTA, 
-                DIVA_NUMINT, FRT_CODIGO, TRANSPORTE, DOC_REFPEDIDO, DOC_REFFACTURA,
-                CODPROV, DOC_TOTALOTROS, DOC_RECIBO, DOC_MATSOLI, DOC_REFERENCIA, 
-                DOC_LUGAR, DOC_ANOMBREDE, DOC_IVAEXO, DOC_VALOREXO, DOC_SECTOR,
-                DOC_DIRENTREGA, DOC_CANTENV, DOC_EXP, DOC_FECHAENT, TIPOPRODUCCION,
-                DOC_TOTCOSINV, DOC_TOTALFIN, USUARIOENUSO, DOC_IMPUESTO1, DOC_TOTALIMPU1,
-                DOC_PORCOMI, DOC_DOLARES, CODMESA, DOC_TIPOOPE, USUARIOAUTORIZA, 
-                NUMAUTORIZA, FECHAAUTORIZA, HORAAUTORIZA, DOC_TEMPORADA, DOC_INGUAT,
-                FECHAINGBOD, HORAINGBOD, FECHASALBOD, HORASALBOD, CODVENBOD,
-                CODHABI, DOC_SERIE,
-                HORARECBOD, CTABAN, NUMINTBAN, 
-                CODVENEMP,
-                DOC_TOTCOSDOL, DOC_TOTCOSINVDOL, CODUNIDAD,
-                TOTCOMBUSTIBLE, DOC_CODCONTRA, DOC_NUMCONTRA, INTERES, ABONOINTERES,
-                SALDOINTERES, NUMEROCORTE, DOC_PORLOCAL, DOC_NUMORDEN, DOC_FENTREGA,
-                DOC_INTERESADO, DOC_RECIBE, NUMEROROLLO, COD_CENTRO, GENCUOTA,
-                DOC_PORINGUAT, DOC_INGUATEXENTO, DOC_TIPOTRANIVA, DOC_PORTIMBREPRE, DOC_TIMBREPRENSA,
-                ABONOSANTICIPO, SALDOANTICIPO, DOC_PRODEXENTO, PUNTOSGANADOS, PUNTOSUSADOS,
-                APL_ANTICIPO, COD_DEPARTA, FIRMAELECTRONICA, DOC_CODDOCRETENCION, DOC_SERIERETENCION,
-                DOC_NUMRETENCION, FIRMAISC, ISCENVIADO
-                ) 
-                VALUES (
-                '${empnit}', ${anio}, ${mes}, '${coddoc}', '${correlativo}',
-                '', '${fecha}', '', '${nomclie}', '',
-                '${codbodega}', '${usuario}', 'I', ${totalcosto}, ${totalprecio},
-                0, '${fecha}', 0, 'CON', 0,
-                0, 0, 0, ${totalprecio}, ${totalprecio},
-                '${nitclie}', 0, '${codven}', 0, 0, 
-                0, '${nitclie}', 0, '', 1, 
-                0, 0, '', '', '${obs}',
-                0, 0, 0, 0, 
-                0, '', '${formaentrega}', '', '',
-                '', 0, 0, '${direntrega}', '', 
-                '', '', '', 0, '', 
-                '${dirclie}', '', '', '${fechaentrega}', '',
-                ${totalcosto}, 0, '', 0, 0,
-                0, 0, '', 0,'',
-                0, '${fecha}', 0, 0, 0,
-                '${fecha}', 0, GETANSINULL(), 0, 0,
-                '', '', 
-                0, 0, 0, 
-                0,
-                0, 0, '',
-                0, '', '', 0, 0, 
-                0, 0, 0, '','NO',
-                '', '', 0, '', '',
-                10, 'N', 'C', 0.5, 0,
-                0, 0, 0, 0, 0,
-                '', '', '', '', '',
-                '', '', 0
-                );`
-                  //GETANSINULL()
-            qrydoc = `INSERT INTO DOCPRODUCTOS 
-                  (EMP_NIT,DOC_ANO,DOC_MES,CODDOC,DOC_NUMERO,DOC_ITEM,CODPROD,CODMEDIDA,CANTIDAD,
-                  EQUIVALE,CANTIDADINV,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,BODEGAENTRADA,BODEGASALIDA,
-                  SUBTOTAL,DESCUENTOPROD,PORDESCUPROD,DESCUENTOFAC,PORDESCUFAC,TOTALDESCUENTO,DESCRIPCION,
-                  SUBTOTALPROD,TIPOCAMBIO,PRODPRECIO,CANTIDADENVIADA,CODFAC,NUMFAC,ITEMFAC,NOAFECTAINV,PRODFVENCE,
-                  DOCPESO,COSTOINV,FLETE,TOTALPRECIOFIN,PRECIOFIN,TOTALCOSTOINV,CANTIDADBONI,CODOPR,NUMOPR,
-                  ITEMOPR,CODINV,NUMINV,ITEMINV,TIPOCLIE,LISTA,PORIVA,VALORIVA,NOLOTE,VALORIMPU1,DESEMPAQUE,
-                  SALDOINVANTCOM,NCUENTAMESA,CUENTACERRADA,COSTODOL,COSTOINVDOL,TOTALCOSTODOL,TOTALCOSTOINVDOL,
-                  IMPCOMBUSTIBLE,CODVENPROD,COMIVEN,SOBREPRECIO,CODREG,NUMREG,ITEMREG,CANTIDADORIGINAL,CANTIDADMODIFICADA,NSERIETARJETA,
-                  CODOC,NUMOC,PORTIMBREPRENSA,VALORTIMBREPRENSA,CODTIPODESCU,TOTALPUNTOS,ITEMOC,CODPRODORIGEN,CODMEDIDAORIGEN,
-                  CANTIDADDEVUELTA,CODARANCEL,CANTIDADPIEZAS,CODPRODLEECODIGO) 
-                  SELECT 
-                  EMPNIT,${anio} as DOC_ANO,${mes} AS DOC_MES,'${coddoc}' AS CODDOC,'${correlativo}' AS DOC_NUMERO,ID AS DOC_ITEM,CODPROD,CODMEDIDA,CANTIDAD,
-                  EQUIVALE,TOTALUNIDADES AS CANTIDADINV,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,
-                  '','${codbodega}',
-                  TOTALPRECIO,0,0,0,0,0,DESPROD,TOTALPRECIO,1,PRECIO,0 AS CANTIDADENVIADA,'','',0,0,GETANSINULL(),0,COSTO,0,TOTALPRECIO,
-                  PRECIO,TOTALCOSTO,0,'','',0,'','',0,
-                  'P',
-                  '',
-                  0,0,'SN',0,'',0,'',0,0,0,0,0,0,0,0,0,'','',0,0,0,'','','',0,0,'',0,0,'','',0,'',1,CODPROD
-                  FROM TEMP_VENTAS   
-                  WHERE EMPNIT='${empnit}' AND USUARIO='${usuario}';`
-            qrycorrelativo =`UPDATE TIPODOCUMENTOS SET CORRELATIVO=${nuevocorrelativo} WHERE EMP_NIT='${empnit}' AND CODDOC='${coddoc}'`
-            break;
-        case 'COMMUNITY':
+    qry = `INSERT INTO COMMUNITY_DOCUMENTOS_DOMICILIO 
+    (TOKEN,EMPNIT,ANIO,MES,DIA,FECHA,HORA,MINUTO,	CODDOC,CORRELATIVO,CODCLIENTE,DOC_NIT,DOC_NOMCLIE,DOC_DIRCLIE,TOTALCOSTO,TOTALPRECIO,CODEMBARQUE,STATUS,CONCRE,USUARIO,CORTE,SERIEFAC,NOFAC,CODVEN,PAGO,VUELTO,MARCA,OBS, DOC_ABONO, DOC_SALDO,TOTALTARJETA, RECARGOTARJETA,CODREP,TOTALEXENTO,DIRENTREGA,VENCIMIENTO,DIASCREDITO,CODCAJA) 
+        VALUES
+    ('${empnit}','${sucursal}',${anio},${mes},0,'${fecha}',0,0,'${coddoc}',${correlativo},0,'${nitclie}','${nomclie}','${dirclie}',${totalcosto},${totalprecio},'DOMICILIO','O','CON','${usuario}','NO','${coddoc}','${correlativo}',${codven},${totalprecio},0,'NO','${obs}',${totalprecio},0,0,0,1,0,'${direntrega}','${fecha}',0,1);`
 
-            break;
-    
-        default:
-            break;
-    };
+    qrydoc = `INSERT INTO COMMUNITY_DOCPRODUCTOS_DOMICILIO 
+    (TOKEN,EMPNIT,ANIO,MES,DIA,CODDOC,CORRELATIVO,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,ENTREGADOS_TOTALUNIDADES,
+        ENTREGADOS_TOTALCOSTO,ENTREGADOS_TOTALPRECIO,COSTOANTERIOR,COSTOPROMEDIO,CANTIDADBONIF,TOTALBONIF,NOSERIE,EXENTO,OBS) 
+    SELECT '${empnit}' AS TOKEN, EMPNIT,${anio} AS ANIO, ${mes} AS MES,0 AS DIA, '${coddoc}' AS CODDOC,${correlativo} AS CORRELATIVO, CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,
+        TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,TOTALUNIDADES,TOTALCOSTO,TOTALPRECIO,COSTO,COSTO,BONIF,TOTALBONIF,NOSERIE,EXENTO,OBS 
+    FROM TEMP_VENTAS WHERE EMPNIT='${sucursal}' AND USUARIO='${usuario}' AND CODDOC='${coddoc}';`;
 
     execute.Query(res,qry + qrydoc + qrycorrelativo);
-    
-    /*
-                           qry = `INSERT INTO DOCUMENTOS (
-                EMP_NIT, DOC_ANO, DOC_MES, CODDOC, DOC_NUMERO, 
-                CODCAJA, DOC_FECHA, DOC_NUMREF, DOC_NOMREF, BODEGAENTRADA,
-                BODEGASALIDA, USUARIO, DOC_ESTATUS, DOC_TOTALCOSTO, DOC_TOTALVENTA,
-                DOC_HORA, DOC_FVENCE, DOC_DIASCREDITO, DOC_CONTADOCREDITO, DOC_DESCUENTOTOTAL,
-                DOC_DESCUENTOPROD, DOC_PORDESCUTOTAL, DOC_IVA, DOC_SUBTOTALIVA, DOC_SUBTOTAL,
-                NITCLIE, DOC_PORDESCUFAC, CODVEN, DOC_ABONOS, DOC_SALDO,
-                DOC_VUELTO, DOC_NIT, DOC_PAGO, DOC_CODREF, DOC_TIPOCAMBIO,
-                DOC_PARCIAL, DOC_ANTICIPO, ANT_CODDOC, ANT_DOCNUMERO, DOC_OBS,
-                DOC_PORCENTAJEIVA, DOC_ENVIO, DOC_CUOTAS, DOC_TIPOCUOTA, DOC_FMODIFICA,
-                DIVA_NUMINT, FRT_CODIGO, TRANSPORTE, DOC_REFPEDIDO, DOC_REFFACTURA,
-                CODPROV, DOC_TOTALOTROS, DOC_RECIBO, DOC_MATSOLI, DOC_REFERENCIA, 
-                DOC_LUGAR, DOC_ANOMBREDE, DOC_IVAEXO, DOC_VALOREXO, DOC_SECTOR,
-                DOC_DIRENTREGA, DOC_CANTENV, DOC_EXP, DOC_FECHAENT, TIPOPRODUCCION,
-                DOC_TOTCOSINV, DOC_TOTALFIN, USUARIOENUSO, DOC_IMPUESTO1, DOC_TOTALIMPU1,
-                DOC_PORCOMI, DOC_DOLARES, CODMESA, DOC_TIPOOPE, USUARIOAUTORIZA, 
-                NUMAUTORIZA, FECHAAUTORIZA, HORAAUTORIZA, DOC_TEMPORADA, DOC_INGUAT,
-                FECHAINGBOD, HORAINGBOD, FECHASALBOD, HORASALBOD, CODVENBOD,
-                CODHABI, DOC_SERIE, DOC_FECHAFAC, DOC_IVARETENIDO, FECHARECBOD,
-                HORARECBOD, CTABAN, NUMINTBAN, FECHARECEMP, HORARECEMP,
-                FECHAINGEMP, HORAINGEMP, FECHASALEMP, HORASALEMP, CODVENEMP,
-                FECHARECFAC, HORARECFAC, FECHAINGFAC, HORAINGFAC, FECHASALFAC,
-                HORASALFAC, FECHARECENT, HORARECENT, FECHAINGENT, HORAINGENT,
-                FECHASALENT, HORASALENT, DOC_TOTCOSDOL, DOC_TOTCOSINVDOL, CODUNIDAD,
-                TOTCOMBUSTIBLE, DOC_CODCONTRA, DOC_NUMCONTRA, INTERES, ABONOINTERES,
-                SALDOINTERES, NUMEROCORTE, DOC_PORLOCAL, DOC_NUMORDEN, DOC_FENTREGA,
-                DOC_INTERESADO, DOC_RECIBE, NUMEROROLLO, COD_CENTRO, GENCUOTA,
-                DOC_PORINGUAT, DOC_INGUATEXENTO, DOC_TIPOTRANIVA, DOC_PORTIMBREPRE, DOC_TIMBREPRENSA,
-                ABONOSANTICIPO, SALDOANTICIPO, DOC_PRODEXENTO, PUNTOSGANADOS, PUNTOSUSADOS,
-                APL_ANTICIPO, COD_DEPARTA, FIRMAELECTRONICA, DOC_CODDOCRETENCION, DOC_SERIERETENCION,
-                DOC_NUMRETENCION, FIRMAISC, ISCENVIADO
-                ) 
-                VALUES (
-                '${empnit}', ${anio}, ${mes}, '${coddoc}', '${correlativo}',
-                '', '${fecha}', '', '${nomclie}', '',
-                '${codbodega}', '${usuario}', 'I', ${totalcosto}, ${totalprecio},
-                0, '${fecha}', 0, 'CON', 0,
-                0, 0, 0, ${totalprecio}, ${totalprecio},
-                '${nitclie}', 0, '${codven}', 0, 0, 
-                0, '${nitclie}', 0, '', 1, 
-                0, 0, '', '', '${obs}',
-                0, 0, 0, 0, GETANSINULL(),
-                0, '', '', '', '',
-                '', 0, 0, '', '${direntrega}',
-                '', '', '', 0, '', 
-                '${dirclie}', '', '', '', '',
-                ${totalcosto}, 0, '', 0, 0,
-                0, 0, '', 0,'',
-                0, '${fecha}', 0, 0, 0,
-                '${fecha}', 0, GETANSINULL(), 0, 0,
-                '', '', GETANSINULL(), 0, GETANSINULL(),
-                0, 0, 0, GETANSINULL(), 0,
-                GETANSINULL(), 0, GETANSINULL(), 0, 0,
-                GETANSINULL(), 0, GETANSINULL(), 0, GETANSINULL(),
-                0, GETANSINULL(), 0, GETANSINULL(), 0,
-                GETANSINULL(), 0, 0, 0, '',
-                0, '', '', 0, 0, 
-                0, 0, 0, '','NO',
-                '', '', 0, '', '',
-                10, 'N', 'C', 0.5, 0,
-                0, 0, 0, 0, 0,
-                '', '', '', '', '',
-                '', '', 0
-                );`
-     */
     
 });
 
