@@ -1,31 +1,31 @@
 let classTipoDocumentos = {
     comboboxTipodoc : async(tipo,idContainer,idContainerCorrelativo)=>{
-        
+        console.log('cargando correlativo de documento')
         let combobox = document.getElementById(idContainer);
-        let correlativo = document.getElementById(idContainerCorrelativo);
-        let n = 0;
-
+        
         let str = ""; 
         axios.get('/tipodocumentos/tipo?empnit=' + GlobalEmpnit + '&tipo=' + tipo + '&app=' + GlobalSistema)
         .then((response) => {
             const data = response.data;        
             data.recordset.map((rows)=>{
                 str += `<option value="${rows.CODDOC}">${rows.CODDOC}</option>`
-                n = rows.CORRELATIVO;
+                
             })            
             combobox.innerHTML = str;
-            correlativo.value = n;
+            classTipoDocumentos.fcnCorrelativoDocumento('PED',combobox.value,idContainerCorrelativo);
+
         }, (error) => {
             str = ''
             combobox.innerHTML = '';
-            correlativo.value = 0;
+            
         });
         
     },
     fcnCorrelativoDocumento: async(tipodoc,coddoc,idContainerCorrelativo)=>{
         
         let correlativo = document.getElementById(idContainerCorrelativo);
-    
+        correlativo.value = '---';
+
         axios.get('/tipodocumentos/correlativodoc?empnit=' + GlobalEmpnit + '&tipo=' + tipodoc + '&coddoc=' + coddoc  + '&app=' + GlobalSistema)
         .then((response) => {
             const data = response.data;        

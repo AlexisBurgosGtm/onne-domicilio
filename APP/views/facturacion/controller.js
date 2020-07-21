@@ -2,6 +2,7 @@ let controllerventa = {
     getView: ()=>{
         let view = {
             encabezadoClienteDoc:()=>{
+                //<button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
                 return `
                 <div class="row">
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
@@ -11,7 +12,7 @@ let controllerventa = {
                                 <div class="panel-toolbar">
                                     <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
                                     <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
-                                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                                    
                                 </div>
                             </div>
                             <div class="panel-container show">
@@ -45,7 +46,7 @@ let controllerventa = {
                                 <div class="panel-toolbar">
                                     <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
                                     <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
-                                    <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>                                
+                                    
                                 </div>
                             </div>
                             <div class="panel-container show">
@@ -104,7 +105,7 @@ let controllerventa = {
                             <div class="panel-toolbar">
                                 <button class="btn btn-panel" data-action="panel-collapse" data-toggle="tooltip" data-offset="0,10" data-original-title="Collapse"></button>
                                 <button class="btn btn-panel" data-action="panel-fullscreen" data-toggle="tooltip" data-offset="0,10" data-original-title="Fullscreen"></button>
-                                <button class="btn btn-panel" data-action="panel-close" data-toggle="tooltip" data-offset="0,10" data-original-title="Close"></button>
+                                
                             </div>
                         </div>
                         <div class="panel-container show">
@@ -135,7 +136,7 @@ let controllerventa = {
             btnCobrar:()=>{
                 return `
                 <div id="fixed-btn2">
-                    <button class="btn btn-danger btn-lg waves-themed waves-effect" id="btnCobrar">
+                    <button class="btn btn-outline-danger btn-lg waves-themed waves-effect" id="btnCobrar">
                             <i class="fal fa-search"></i>
                             COBRAR
                     </button>
@@ -394,7 +395,7 @@ let controllerventa = {
                         
                         </div>
                     </div>
-</div>
+                </div>
                 `
             },
             modalFinalizarPedido:()=>{
@@ -469,7 +470,9 @@ let controllerventa = {
     iniciarVistaVentas: async function(){
 
         controllerventa.getView();
+        
         await classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc','txtCorrelativo');
+
         let txtFecha = document.getElementById('txtFecha');txtFecha.value = funciones.getFecha();
         let txtEntregaFecha = document.getElementById('txtEntregaFecha');txtEntregaFecha.value = funciones.getFecha();
 
@@ -505,27 +508,27 @@ let controllerventa = {
 
         let btnCobrar = document.getElementById('btnCobrar');
         btnCobrar.addEventListener('click',()=>{
-            /*
-            $('#ModalCobro').modal('show');
-            document.getElementById('txtPagadoEfectivo').focus();
-            */
-        if(btnCobrar.innerText=='Terminar'){
-                funciones.AvisoError('No puede finalizar un pedido sin productos')
-        }else{
-            if(txtNit.value==''){
-                funciones.AvisoError('Especifique el cliente a quien se carga la venta');
+            
+            if(btnCobrar.innerText=='Terminar'){
+                    funciones.AvisoError('No puede finalizar un pedido sin productos')
             }else{
-                $('#ModalFinalizarPedido').modal('show');   
+                if(txtNit.value==''){
+                    funciones.AvisoError('Especifique el cliente a quien se carga la venta');
+                }else{
+                    $('#ModalFinalizarPedido').modal('show');   
+                }
+                    
             }
-                
-        }
         
         });
 
         let cmbCoddoc = document.getElementById('cmbCoddoc');
-        classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc');
+        //classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc','txtCorrelativo');
+        
         cmbCoddoc.addEventListener('change',async ()=>{
             await classTipoDocumentos.fcnCorrelativoDocumento('PED',cmbCoddoc.value,'txtCorrelativo','txtCorrelativo');
+            // carga el grid
+            await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
         });
 
         let cmbVendedor = document.getElementById('cmbVendedor');
@@ -595,7 +598,7 @@ let controllerventa = {
 
         // carga el grid
         await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
-        await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
+        //await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
         
         await classEmpleados.comboboxVendedores('cmbVendedor');
 
@@ -960,12 +963,16 @@ let controllerventa = {
         
         tabla.innerHTML = data;
         lbtotalv.innerText =funciones.setMoneda(varTotalVenta,'Q');
-        GlobalTotalCostoDocumento = varTotalCosto;
+        GlobalTotalCostoDocumento = Number(varTotalCosto);
+        GlobalTotalDocumento = Number(varTotalVenta);
+                
         btnCobrarTotal.innerHTML = '<h1>Terminar : ' + varTotalVenta + '</h1>';
         } catch (error) {
             console.log('NO SE LOGRO CARGAR LA LISTA ' + error);
             lbtotalv.innerText ='--';
-            btnCobrarTotal.innerHTML = 'COBRAR'
+            btnCobrarTotal.innerHTML = 'COBRAR';
+            GlobalTotalCostoDocumento = 0;
+            GlobalTotalDocumento = 0;
         }
     },
     fcnAumentarCantidad: function (idCantidad, idSubtotal, precio,id){
@@ -1188,36 +1195,12 @@ let controllerventa = {
         let container = document.getElementById(idContainer);
         container.innerHTML = GlobalLoader;
 
-        let str = ""; 
-        axios.get('/clientes/municipios?empnit=' + GlobalEmpnit + '&app=' + GlobalSistema)
-        .then((response) => {
-            const data = response.data;        
-            data.recordset.map((rows)=>{
-                str += `<option value='${rows.CODMUNICIPIO}'>${rows.DESMUNICIPIO}</option>`
-            })
-            container.innerHTML= str;
-            
-        }, (error) => {
-            console.log(error);
-            container.innerHTML = '';
-        });
+        
     },
     fcnGetDepartamentos: async(idContainer)=>{
         let container = document.getElementById(idContainer);
         container.innerHTML = GlobalLoader;
 
-        let str = ""; 
-        axios.get('/clientes/departamentos?empnit=' + GlobalEmpnit + '&app=' + GlobalSistema)
-        .then((response) => {
-            const data = response.data;        
-            data.recordset.map((rows)=>{
-                str += `<option value='${rows.CODDEPTO}'>${rows.DESDEPTO}</option>`
-            })
-            container.innerHTML= str;
-            
-        }, (error) => {
-            console.log(error);
-            container.innerHTML = '';
-        });
+       
     }
 }
