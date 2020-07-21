@@ -1,4 +1,5 @@
-socket.on('ordenes nueva', function(msg,form){
+
+socket.on('ventas nueva', function(msg,form){
     try {
       if(GlobalSelectedForm=='DESPACHO'){
         

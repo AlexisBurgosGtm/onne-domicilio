@@ -1,5 +1,5 @@
 
-var CACHE = 'community-pos';
+var CACHE = 'domicilio';
 const staticAssets = [
   './',
   './manifest.json',

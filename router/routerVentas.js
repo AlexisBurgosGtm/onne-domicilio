@@ -116,7 +116,7 @@ router.put("/tempVentasRow", async(req,res)=>{
 router.post("/tempVentas", async(req,res)=>{
     let empnit = req.body.empnit;
     let usuario = req.body.usuario;
-    let sucursal = req.body.sucursal;
+    let token = req.body.token;
     let coddoc = req.body.coddoc;
 
     let codprod = req.body.codprod;
@@ -135,8 +135,8 @@ router.post("/tempVentas", async(req,res)=>{
     let qry = '';
 
     qry = `INSERT INTO TEMP_VENTAS 
-            (EMPNIT,CODDOC,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,EXENTO,USUARIO,TOKEN) 
-    VALUES ('${sucursal}','${coddoc}','${codprod}','${desprod}','${codmedida}',${cantidad},${equivale},${totalunidades},${costo},${precio},${totalcosto},${totalprecio},0,'${usuario}','${empnit}')`
+           (    EMPNIT,     CODDOC,    CODPROD,     DESPROD,      CODMEDIDA,    CANTIDAD,   EQUIVALE,  TOTALUNIDADES, COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,EXENTO,USUARIO,TOKEN) 
+    VALUES ('${empnit}','${coddoc}','${codprod}','${desprod}','${codmedida}',${cantidad},${equivale},${totalunidades},${costo},${precio},${totalcosto},${totalprecio},0,'${usuario}','${token}')`
     
     console.log(qry);
     
@@ -155,12 +155,12 @@ router.delete("/tempVentas", async(req,res)=>{
 
 });
 
-// elimina un item de la venta todos 
+// elimina el grid temporal de la venta 
 router.post("/tempVentastodos", async(req,res)=>{
        
-    const {empnit,usuario} = req.body;
+    const {empnit,token,coddoc} = req.body;
     
-    let qry = `DELETE FROM TEMP_VENTAS WHERE EMPNIT='${empnit}' AND USUARIO='${usuario}'`
+    let qry = `DELETE FROM TEMP_VENTAS WHERE TOKEN='${token}' AND EMPNIT='${empnit}' AND CODDOC='${coddoc}'; `
     
     execute.Query(res,qry);
 
@@ -182,28 +182,31 @@ router.get("/buscarcliente", async(req,res)=>{
 
 // INSERTA EL ENCABEZADO DEL PEDIDO
 router.post("/documentos", async (req,res)=>{
-    const {sucursal,empnit,anio,mes,coddoc,fecha,fechaentrega,formaentrega,nomclie,codbodega,totalcosto,totalprecio,nitclie,dirclie,obs,direntrega,usuario,codven} = req.body;
+    const {token,empnit,anio,mes,coddoc,correlativo,fecha,fechaentrega,formaentrega,nomclie,codbodega,totalcosto,totalprecio,nitclie,dirclie,obs,direntrega,usuario,codven} = req.body;
     
-    let correlativo = Number(req.body.correlativo);
+    //let correlativo = Number(req.body.correlativo);
               
     let nuevocorrelativo = Number(correlativo) + 1;
 
 
     let qry = ''; // inserta los datos en la tabla documentos
     let qrydoc = ''; // inserta los datos de la tabla docproductos
-    let qrycorrelativo =  `UPDATE COMMUNITY_TIPODOCUMENTOS SET CORRELATIVO=${nuevocorrelativo} WHERE CODDOC='${coddoc}' AND TOKEN='${empnit}'`; //actualiza el correlativo del documento
+    let qrycorrelativo =  `UPDATE COMMUNITY_TIPODOCUMENTOS SET CORRELATIVO=${nuevocorrelativo} WHERE CODDOC='${coddoc}' AND TOKEN='${token}'`; //actualiza el correlativo del documento
 
     qry = `INSERT INTO COMMUNITY_DOCUMENTOS_DOMICILIO 
     (TOKEN,EMPNIT,ANIO,MES,DIA,FECHA,HORA,MINUTO,	CODDOC,CORRELATIVO,CODCLIENTE,DOC_NIT,DOC_NOMCLIE,DOC_DIRCLIE,TOTALCOSTO,TOTALPRECIO,CODEMBARQUE,STATUS,CONCRE,USUARIO,CORTE,SERIEFAC,NOFAC,CODVEN,PAGO,VUELTO,MARCA,OBS, DOC_ABONO, DOC_SALDO,TOTALTARJETA, RECARGOTARJETA,CODREP,TOTALEXENTO,DIRENTREGA,VENCIMIENTO,DIASCREDITO,CODCAJA) 
         VALUES
-    ('${empnit}','${sucursal}',${anio},${mes},0,'${fecha}',0,0,'${coddoc}',${correlativo},0,'${nitclie}','${nomclie}','${dirclie}',${totalcosto},${totalprecio},'DOMICILIO','O','CON','${usuario}','NO','${coddoc}','${correlativo}',${codven},${totalprecio},0,'NO','${obs}',${totalprecio},0,0,0,1,0,'${direntrega}','${fecha}',0,1);`
+    ('${token}','${empnit}',${anio},${mes},0,'${fecha}',0,0,'${coddoc}',${correlativo},0,'${nitclie}','${nomclie}','${dirclie}',${totalcosto},${totalprecio},'DOMICILIO','O','CON','${usuario}','NO','${coddoc}','${correlativo}',${codven},${totalprecio},0,'NO','${obs}',${totalprecio},0,0,0,1,0,'${direntrega}','${fecha}',0,1);`
 
     qrydoc = `INSERT INTO COMMUNITY_DOCPRODUCTOS_DOMICILIO 
     (TOKEN,EMPNIT,ANIO,MES,DIA,CODDOC,CORRELATIVO,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,ENTREGADOS_TOTALUNIDADES,
         ENTREGADOS_TOTALCOSTO,ENTREGADOS_TOTALPRECIO,COSTOANTERIOR,COSTOPROMEDIO,CANTIDADBONIF,TOTALBONIF,NOSERIE,EXENTO,OBS) 
-    SELECT '${empnit}' AS TOKEN, EMPNIT,${anio} AS ANIO, ${mes} AS MES,0 AS DIA, '${coddoc}' AS CODDOC,${correlativo} AS CORRELATIVO, CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,
+    SELECT '${token}' AS TOKEN, EMPNIT,${anio} AS ANIO, ${mes} AS MES,0 AS DIA, '${coddoc}' AS CODDOC,${correlativo} AS CORRELATIVO, CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,
         TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,TOTALUNIDADES,TOTALCOSTO,TOTALPRECIO,COSTO,COSTO,BONIF,TOTALBONIF,NOSERIE,EXENTO,OBS 
-    FROM TEMP_VENTAS WHERE EMPNIT='${sucursal}' AND USUARIO='${usuario}' AND CODDOC='${coddoc}';`;
+    FROM TEMP_VENTAS WHERE EMPNIT='${empnit}' AND USUARIO='${usuario}' AND CODDOC='${coddoc}';`;
+    
+    console.log(qrydoc);
+    console.log(qrycorrelativo);
 
     execute.Query(res,qry + qrydoc + qrycorrelativo);
     
@@ -215,23 +218,11 @@ router.post("/documentos", async (req,res)=>{
 // DESPACHO PEDIDOS PENDIENTES
 router.get("/pedidospendientes", async(req,res)=>{
     
-    const {empnit, app} = req.query;
+    const {empnit, token} = req.query;
     
     let qry = '';
-
-    switch (app) {
-        case 'ISC':
-            qry = `SELECT CODDOC, DOC_NUMERO AS CORRELATIVO, DOC_FECHA AS FECHA, DOC_NOMREF AS NOMCLIE, DOC_OBS AS OBS, DOC_DIRENTREGA AS DIRENTREGA, DOC_TOTALVENTA AS IMPORTE FROM DOCUMENTOS WHERE EMP_NIT='${empnit}' AND DOC_FENTREGA='NO' ORDER BY DOC_FECHA, DOC_NUMERO`         
-            break;
-        case 'COMMUNITY':
-            
-            qry = `SELECT CODDOC, CORRELATIVO, FECHA, DOC_NOMCLIE AS NOMCLIE, OBS, DIRENTREGA, TOTALPRECIO AS IMPORTE WHERE EMPNIT='${empnit}' AND ST='P'` 
-            break;
+    qry = `SELECT CODDOC, CORRELATIVO, FECHA, DOC_NOMCLIE AS NOMCLIE, DOC_DIRCLIE AS DIRCLIE, OBS, DIRENTREGA, TOTALPRECIO AS IMPORTE FROM COMMUNITY_DOCUMENTOS_DOMICILIO WHERE EMPNIT='${empnit}' AND STATUS='O' AND TOKEN='${token}' ` 
     
-        default:
-            break;
-    }
-
     execute.Query(res,qry);
 
 });

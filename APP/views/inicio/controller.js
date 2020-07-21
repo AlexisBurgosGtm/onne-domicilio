@@ -10,13 +10,13 @@ function InicializarVista(){
 
     btnInicioVentas.addEventListener('click',()=>{
         //$('#ModalLogin').modal('show');
-        GlobalSelectedApp = 'VENTAS';
+        GlobalSelectedForm = 'VENTAS';
         classNavegar.ventas();
       
     });
     btnInicioDespacho.addEventListener('click',()=>{
         //$('#ModalLogin').modal('show');
-        GlobalSelectedApp = 'DESPACHO';
+        GlobalSelectedForm = 'DESPACHO';
         classNavegar.despacho();
        
     });

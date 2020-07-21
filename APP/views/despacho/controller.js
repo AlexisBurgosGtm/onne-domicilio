@@ -96,18 +96,13 @@ let controllerdespacho = {
     iniciarVistaDespacho: async ()=>{
         controllerdespacho.getView();        
         
-        controllerdespacho.getEmpresas('cmbBodega')
-        .then(async()=>{
+        //agrega el listener a la sucursal
+        GlobalSelectedSucursal.addEventListener('change',async()=>{
             await controllerdespacho.getListadoOrdenes('tblOrdenes');
-        })
-        .catch(()=>{
-            funciones.AvisoError('No se pudieron cargar las empresas de domicilio');
-        })
+        });
 
-        let bodega = document.getElementById('cmbBodega');
-        bodega.addEventListener('change',async()=>{
-            await controllerdespacho.getListadoOrdenes('tblOrdenes');
-        })
+        // hace la carga inicial de la lista
+        await controllerdespacho.getListadoOrdenes('tblOrdenes');        
 
     },
     getListadoOrdenes: async (idContainer)=>{
@@ -117,7 +112,7 @@ let controllerdespacho = {
         let id = 0;
         container.innerHTML = GlobalLoader;
 
-        axios.get('/ventas/pedidospendientes?empnit=' + GlobalEmpnit + '&app=' + GlobalSistema)
+        axios.get('/ventas/pedidospendientes?empnit=' + GlobalSelectedSucursal.value + '&token=' + GlobalToken)
         .then((response) => {
         const data = response.data;       
         data.recordset.map((rows)=>{

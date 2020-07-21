@@ -654,9 +654,9 @@ let controllerventa = {
             try {        
                 
                     var data =JSON.stringify({
-                        empnit:GlobalEmpnit,
+                        empnit:GlobalSelectedSucursal.value,
                         coddoc:coddoc.value,
-                        sucursal:GlobalSelectedSucursal.value,
+                        token:GlobalToken,
                         codprod:codprod,
                         desprod:desprod,
                         codmedida:codmedida,
@@ -916,7 +916,7 @@ let controllerventa = {
 
         try {
             
-            const response = await fetch('/ventas/tempventas?empnit=' + GlobalEmpnit + '&usuario=' + GlobalUsuario +  '&sucursal=' + GlobalSelectedSucursal.value)
+            const response = await fetch('/ventas/tempventas?empnit=' + GlobalSelectedSucursal.value + '&usuario=' + GlobalUsuario +  '&token=' + GlobalToken)
             const json = await response.json();
             let idcant = 0;
             let data = json.recordset.map((rows)=>{
@@ -1037,7 +1037,7 @@ let controllerventa = {
         let de = fe.getUTCDate() 
         let fechaentrega = ae + '-' + me + '-' + de;  // CAMPO DOC_FECHAENT
 
-        let coddoc = GlobalCoddoc;
+        let coddoc = document.getElementById('cmbCoddoc').value;
         let correlativo = document.getElementById('txtCorrelativo').value;
 
         let cmbVendedor = document.getElementById('cmbVendedor');
@@ -1050,7 +1050,7 @@ let controllerventa = {
 
                 //,,obs,usuario,codven
                 axios.post('/ventas/documentos', {
-                    sucursal: GlobalEmpnit,
+                    token: GlobalEmpnit,
                     empnit: GlobalSelectedSucursal.value,
                     coddoc:coddoc,
                     correlativo: correlativo,
@@ -1080,7 +1080,7 @@ let controllerventa = {
                         document.getElementById('btnEntregaCancelar').click();
             
                         socket.emit('ventas nueva',`Nueva Orden a nombre de ${ClienteNombre} por valor de ${GlobalTotalDocumento} quetzales`, GlobalSelectedSucursal.value);
-                        
+
                         controllerventa.fcnEliminarTempVentas(GlobalUsuario);
                         controllerventa.fcnNuevoPedido();
                     }
@@ -1092,9 +1092,12 @@ let controllerventa = {
         })
     },
     fcnEliminarTempVentas: async(usuario)=>{
+        let cmbCoddoc = document.getElementById('cmbCoddoc');
+
         axios.post('/ventas/tempVentastodos', {
-            empnit: GlobalEmpnit,
-            usuario:usuario
+            empnit: GlobalSelectedSucursal.value,
+            token:GlobalToken,
+            coddoc: cmbCoddoc.value
         })
         .then((response) => {
             const data = response.data;
@@ -1109,6 +1112,8 @@ let controllerventa = {
     },
     fcnNuevoPedido:async()=>{
         
+        console.log('cargando nuevo pedido');
+
         document.getElementById('txtNit').value ='CF';
         document.getElementById('txtNombre').value = 'CONSUMIDOR FINAL';
         document.getElementById('txtDireccion').value = 'CIUDAD';
@@ -1116,9 +1121,10 @@ let controllerventa = {
         document.getElementById('txtEntregaDireccion').value = 'SN';
 
         await classTipoDocumentos.fcnCorrelativoDocumento('PED',cmbCoddoc.value,'txtCorrelativo');
-        await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
+        //await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
         await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
 
+        
     },
     fcnUpdateTempRow: async(id,cantidad)=>{
         

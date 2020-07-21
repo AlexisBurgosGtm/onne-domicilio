@@ -80,6 +80,7 @@ app.use("*",function(req,res){
 io.on('connection', function(socket){
   
   socket.on('ventas nueva', function(msg,sucursal){
+    
 	  io.emit('ventas nueva', msg, sucursal);
   });
   
