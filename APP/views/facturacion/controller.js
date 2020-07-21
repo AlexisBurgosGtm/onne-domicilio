@@ -491,16 +491,16 @@ let controllerventa = {
         document.getElementById('txtBusqueda').addEventListener('keyup',(e)=>{
             if(e.code=='Enter'){
                 controllerventa.fcnBusquedaProducto('txtBusqueda','tblResultadoBusqueda');
-                $('#ModalBusqueda').modal('show');
+                
             }
             if(e.code=='NumpadEnter'){
                 controllerventa.fcnBusquedaProducto('txtBusqueda','tblResultadoBusqueda');
-                $('#ModalBusqueda').modal('show');
+                
             }
         });
         document.getElementById('btnBuscarProducto').addEventListener('click',()=>{
             controllerventa.fcnBusquedaProducto('txtBusqueda','tblResultadoBusqueda');
-            $('#ModalBusqueda').modal('show');
+            
         });
 
         let btnCobrar = document.getElementById('btnCobrar');
@@ -608,44 +608,54 @@ let controllerventa = {
     },
     fcnBusquedaProducto: async function(idFiltro,idTablaResultado){
         
-        let filtro = document.getElementById(idFiltro).value;
-        let tabla = document.getElementById(idTablaResultado);
-        tabla.innerHTML = GlobalLoader;
-        
-
-        let str = ""; 
-        axios.get('/ventas/buscarproducto?empnit=' + GlobalEmpnit + '&filtro=' + filtro + '&app=' + GlobalSistema + '&sucursal=' + GlobalSelectedSucursal.value)
-        .then((response) => {
-            const data = response.data;        
-            data.recordset.map((rows)=>{
-                let totalexento = 0;
-                if (rows.EXENTO==1){totalexento=Number(rows.PRECIO)}
-                str += `<tr id="${rows.CODPROD}">
-                <td>
-                    ${funciones.quitarCaracteres(rows.DESPROD,'"'," pulg",true)}
-                    <br>
-                    <small class="text-danger"><b>${rows.CODPROD}</b></small>
-                </td>
-                <td>${rows.CODMEDIDA}<br>
-                    <small>${rows.EQUIVALE} item</small>
-                    <br>
-                    <small class="text-success">Exist: ${rows.EXISTENCIA}</small>
-                </td>
-                <td>${funciones.setMoneda(rows.PRECIO || 0,'Q ')}</td>
-                <td>${rows.DESMARCA}</td>
-                <td>
-                    <button class="btn btn-sm btn-success btn-circle text-white" 
-                    onclick="controllerventa.fcnAgregarProductoVenta('${rows.CODPROD}','${funciones.quitarCaracteres(rows.DESPROD,'"'," plg",true)}','${rows.CODMEDIDA}',1,${rows.EQUIVALE},${rows.EQUIVALE},${rows.COSTO},${rows.PRECIO},${totalexento});">
-                        +
-                    </button>
-                <td>
-            </tr>`
-            })
-            tabla.innerHTML= str;
+        if(GlobalSelectedSucursal.value=='SN'){
+            funciones.AvisoError('Debe seleccionar una sucursal')
+            return;
+        }else{
+            let filtro = document.getElementById(idFiltro).value;
+            let tabla = document.getElementById(idTablaResultado);
+            tabla.innerHTML = GlobalLoader;
             
-        }, (error) => {
-            console.log(error);
-        });
+    
+            let str = ""; 
+            axios.get('/ventas/buscarproducto?empnit=' + GlobalEmpnit + '&filtro=' + filtro + '&app=' + GlobalSistema + '&sucursal=' + GlobalSelectedSucursal.value)
+            .then((response) => {
+                const data = response.data;        
+                data.recordset.map((rows)=>{
+                    let totalexento = 0;
+                    if (rows.EXENTO==1){totalexento=Number(rows.PRECIO)}
+                    str += `<tr id="${rows.CODPROD}">
+                    <td>
+                        ${funciones.quitarCaracteres(rows.DESPROD,'"'," pulg",true)}
+                        <br>
+                        <small class="text-danger"><b>${rows.CODPROD}</b></small>
+                    </td>
+                    <td>${rows.CODMEDIDA}<br>
+                        <small>${rows.EQUIVALE} item</small>
+                        <br>
+                        <small class="text-success">Exist: ${rows.EXISTENCIA}</small>
+                    </td>
+                    <td>${funciones.setMoneda(rows.PRECIO || 0,'Q ')}</td>
+                    <td>${rows.DESMARCA}</td>
+                    <td>
+                        <button class="btn btn-sm btn-success btn-circle text-white" 
+                        onclick="controllerventa.fcnAgregarProductoVenta('${rows.CODPROD}','${funciones.quitarCaracteres(rows.DESPROD,'"'," plg",true)}','${rows.CODMEDIDA}',1,${rows.EQUIVALE},${rows.EQUIVALE},${rows.COSTO},${rows.PRECIO},${totalexento});">
+                            +
+                        </button>
+                    <td>
+                </tr>`
+                })
+                tabla.innerHTML= str;
+                
+            }, (error) => {
+                console.log(error);
+            });
+
+            $('#ModalBusqueda').modal('show');
+
+        }
+        
+        
 
     },
     fcnAgregarProductoVenta: async function(codprod,desprod,codmedida,cantidad,equivale,totalunidades,costo,precio,exento){

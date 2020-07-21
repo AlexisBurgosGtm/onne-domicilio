@@ -1,7 +1,7 @@
 let root = document.getElementById('root');
 
 let GlobalToken = 'FARMASALUD';
-let GlobalUsuario = 'FARMASALUD';
+let GlobalUsuario = 'DOMICILIO';
 let GlobalNivelUser = 0;
 let GlobalEmpnit = 'FARMASALUD';
 let GlobalEmpNombre = 'FARMACIA SALUD Y AHORRO';
@@ -18,4 +18,15 @@ let GlobalSelectedApp = '';
 
 let GlobalSistema = 'ISC';
 
-let GlobalLoader = '<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>';
+let GlobalLoader = `<div class="spinner-border text-danger" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="spinner-border text-success" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>`;

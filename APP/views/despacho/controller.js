@@ -5,20 +5,25 @@ let controllerdespacho = {
                 return `
                 <div class="row">
                     <div class="col-12">
-                        <div class="card">
-                            <h1>SELECCIONE EMPRESA</h1>
-                            <h3 class="text-danger" id="txtStatus"></h3>
+                        <div class="card" id="containerTipo">
+                            <br>
+                            <div class="row">
+                                <div class="col-3"></div>
+                                <div class="col-6">
+                                    <select class="form-control text-center" id="cmbTipoLista">
+                                        <option value="PENDIENTES">PEDIDOS PENDIENTES DE DESPACHO</option>
+                                        <option value="ENTREGADOS">PEDIDOS DESPACHADOS</option>
+                                    </select>    
+                                </div>
+                                <div class="col-3"></div>
+                                
+                            </div>
+                            <br>
                         </div>
                         <div class="card" id="txtNotif">
                             
                         </div>
-                        
-                        <div class="card">
-                            <select class="form-control col-12" id="cmbBodega">
-                                    
-                            </select>
-                        </div>
-                        
+                                                                        
                         <div class="card">
                             <div class="table-responsive">
                                 <table class="table table-responsive table-striped table-hover">
@@ -96,23 +101,90 @@ let controllerdespacho = {
     iniciarVistaDespacho: async ()=>{
         controllerdespacho.getView();        
         
+        let cmbTipoLista = document.getElementById('cmbTipoLista');
+        
         //agrega el listener a la sucursal
         GlobalSelectedSucursal.addEventListener('change',async()=>{
-            await controllerdespacho.getListadoOrdenes('tblOrdenes');
+            if(cmbTipoLista.value=='PENDIENTES'){
+                
+                await controllerdespacho.getListadoOrdenes('tblOrdenes');                
+            }else{
+                
+                await controllerdespacho.getListadoOrdenesDespachadas('tblOrdenes');        
+            };
         });
+
+        
+        
+        cmbTipoLista.addEventListener('change', async ()=>{
+            
+            if(cmbTipoLista.value=='PENDIENTES'){
+                
+                await controllerdespacho.getListadoOrdenes('tblOrdenes');                
+            }else{
+                
+                await controllerdespacho.getListadoOrdenesDespachadas('tblOrdenes');        
+            };
+
+        })
 
         // hace la carga inicial de la lista
         await controllerdespacho.getListadoOrdenes('tblOrdenes');        
 
     },
     getListadoOrdenes: async (idContainer)=>{
-        
+        let containerTipo = document.getElementById('containerTipo');
+        containerTipo.className = "bg-success";
+
         let container = document.getElementById(idContainer);
         let str = '';
         let id = 0;
         container.innerHTML = GlobalLoader;
 
         axios.get('/ventas/pedidospendientes?empnit=' + GlobalSelectedSucursal.value + '&token=' + GlobalToken)
+        .then((response) => {
+        const data = response.data;       
+        data.recordset.map((rows)=>{
+            id = id + 1;
+            str = str + `<tr id=${id}>
+                            <td>${rows.FECHA.replace('T00:00:00.000Z','')}</td>
+                            <td>${rows.CODDOC} - ${rows.CORRELATIVO}</td>
+                            <td>${rows.NOMCLIE}
+                                <br>
+                                    <small><b class="text-danger">Entregar:</b>${rows.DIRENTREGA}</small>
+                                <br>
+                                    <small><b class="text-danger">Obs:</b>${rows.OBS}</small>
+                            </td>
+                            <td>${funciones.setMoneda(rows.IMPORTE,'Q')}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm btn-circle" onClick="controllerdespacho.fcnDetallePedido('${rows.CODDOC}','${rows.CORRELATIVO}','${rows.NOMCLIE}',${rows.IMPORTE},${id},'cmbBodega');">
+                                    +
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm btn-circle" onClick="controllerdespacho.fcnDespachado('${rows.CODDOC}','${rows.CORRELATIVO}','${rows.NOMCLIE}', '${rows.IMPORTE}',${id})">
+                                    +
+                                </button>
+                            </td>
+                        </tr>`        
+        })
+        
+        container.innerHTML = str;
+                
+        }, (error) => {
+            console.log(error);
+        });
+    },
+    getListadoOrdenesDespachadas: async (idContainer)=>{
+        let containerTipo = document.getElementById('containerTipo');
+        containerTipo.className = "bg-danger";
+
+        let container = document.getElementById(idContainer);
+        let str = '';
+        let id = 0;
+        container.innerHTML = GlobalLoader;
+
+        axios.get('/ventas/pedidosdespachados?empnit=' + GlobalSelectedSucursal.value + '&token=' + GlobalToken)
         .then((response) => {
         const data = response.data;       
         data.recordset.map((rows)=>{
@@ -154,10 +226,10 @@ let controllerdespacho = {
         .then((value)=>{
             if(value==true){
                 axios.post('/ventas/pedidodespachado', {
-                    empnit: GlobalEmpnit,
+                    empnit: GlobalSelectedSucursal.value,
                     coddoc:coddoc,
                     correlativo: correlativo,
-                    app: GlobalSistema
+                    token: GlobalToken
                 })
                 .then((response) => {
                     const data = response.data;
@@ -166,7 +238,7 @@ let controllerdespacho = {
                         document.getElementById(id).className = "";
                     }else{
                         funciones.Aviso('Pedido finalizado exitosamente !!!')
-                        socket.emit('ordenes finalizada', cliente,monto);
+                        socket.emit('ventas finalizada', cliente,monto);
                         document.getElementById(id).remove();
                         
                     }            
@@ -195,11 +267,10 @@ let controllerdespacho = {
         let idrow = 0;
 
         axios.post('/ventas/pedidodetalle', {
-            empnit: GlobalEmpnit,
+            empnit: GlobalSelectedSucursal.value,
             coddoc:coddoc,
             correlativo: correlativo,
-            bodega:bodega.value,
-            app: GlobalSistema
+            token: GlobalToken
         })
         .then((response) => {
             const data = response.data;
@@ -249,29 +320,5 @@ let controllerdespacho = {
         }else{
             row.className = "bg-warning";
         }
-    },
-    getEmpresas: async (idContainer)=>{
-        return new Promise((resolve,reject)=>{
-
-            let container = document.getElementById(idContainer);
-
-            container.innerHTML = GlobalLoader;
-            let str ='';
-            axios.get('/tipodocumentos/empresasdomicilio?empnit=' + GlobalEmpnit + '&app=' + GlobalSistema)
-            .then((response) => {
-            const data = response.data;       
-            data.recordset.map((rows)=>{
-                str = str + `<option value='${rows.EMPNIT}'>${rows.EMPNOMBRE}</option>`        
-            })
-                container.innerHTML = str;
-                resolve();        
-            }, (error) => {
-                reject();
-            });
-
-        })
-
     }
-
-
 }

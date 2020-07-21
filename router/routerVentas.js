@@ -136,7 +136,7 @@ router.post("/tempVentas", async(req,res)=>{
            (    EMPNIT,     CODDOC,    CODPROD,     DESPROD,      CODMEDIDA,    CANTIDAD,   EQUIVALE,  TOTALUNIDADES, COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,EXENTO,USUARIO,TOKEN) 
     VALUES ('${empnit}','${coddoc}','${codprod}','${desprod}','${codmedida}',${cantidad},${equivale},${totalunidades},${costo},${precio},${totalcosto},${totalprecio},0,'${usuario}','${token}')`
     
-    console.log(qry);
+    
     
    execute.Query(res,qry);
 
@@ -203,9 +203,7 @@ router.post("/documentos", async (req,res)=>{
         TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,TOTALUNIDADES,TOTALCOSTO,TOTALPRECIO,COSTO,COSTO,BONIF,TOTALBONIF,NOSERIE,EXENTO,OBS 
     FROM TEMP_VENTAS WHERE EMPNIT='${empnit}' AND USUARIO='${usuario}' AND CODDOC='${coddoc}';`;
     
-    console.log(qrydoc);
-    console.log(qrycorrelativo);
-
+    
     execute.Query(res,qry + qrydoc + qrycorrelativo);
     
 });
@@ -225,54 +223,38 @@ router.get("/pedidospendientes", async(req,res)=>{
 
 });
 
+router.get("/pedidosdespachados", async(req,res)=>{
+    
+    const {empnit, token} = req.query;
+    
+    let qry = '';
+    qry = `SELECT CODDOC, CORRELATIVO, FECHA, DOC_NOMCLIE AS NOMCLIE, DOC_DIRCLIE AS DIRCLIE, OBS, DIRENTREGA, TOTALPRECIO AS IMPORTE FROM COMMUNITY_DOCUMENTOS_DOMICILIO WHERE EMPNIT='${empnit}' AND STATUS='I' AND TOKEN='${token}' ` 
+    
+    execute.Query(res,qry);
+
+});
+
 // DESPACHO PEDIDO DESPACHADO EN BODEGA
 router.post("/pedidodespachado", async(req,res)=>{
     
-    const {empnit, coddoc,correlativo, app} = req.body;
+    const {empnit, coddoc, correlativo, token} = req.body;
     
     let qry = '';
-
-    switch (app) {
-        case 'ISC':
-            qry = `UPDATE DOCUMENTOS SET DOC_FENTREGA='SI' WHERE EMP_NIT='${empnit}' AND DOC_FENTREGA='NO' AND CODDOC='${coddoc}' AND DOC_NUMERO='${correlativo}'`         
-            break;
-        case 'COMMUNITY':
-            
-            qry = `UPDATE DOCUMENTOS SET ST='E' WHERE EMPNIT='${empnit}' AND ST='P' AND CODDOC='${coddoc}' AND CORRELATIVO=${correlativo}` 
-            break;
-    
-        default:
-            break;
-    }
-
+    qry = `UPDATE COMMUNITY_DOCUMENTOS_DOMICILIO SET STATUS='I' WHERE EMPNIT='${empnit}' AND CODDOC='${coddoc}' AND CORRELATIVO=${correlativo} AND TOKEN='${token}' ` 
+    console.log(qry);
 
     execute.Query(res,qry);
+
 });
 
 // DETALLE DEL PEDIDO SELECCIONADO
 router.post("/pedidodetalle", async(req,res)=>{
     
-    const {empnit, coddoc,correlativo, app, bodega} = req.body;
+    const {empnit, coddoc,correlativo, token} = req.body;
     
     let qry = '';
-
-    switch (app) {
-        case 'ISC':
-            //qry = `SELECT CODPROD,DESCRIPCION AS DESPROD, CODMEDIDA, CANTIDAD, CANTIDADINV AS TOTALUNIDADES, TOTALPRECIO FROM DOCPRODUCTOS WHERE EMP_NIT='${empnit}' AND CODDOC='${coddoc}' AND DOC_NUMERO='${correlativo}'`
-            qry = `SELECT       Docproductos.CODPROD, Docproductos.DESCRIPCION AS DESPROD, Docproductos.CODMEDIDA, Docproductos.CANTIDAD, Docproductos.CANTIDADINV AS TOTALUNIDADES, Docproductos.TOTALPRECIO
-            FROM Docproductos LEFT OUTER JOIN Productos ON Docproductos.EMP_NIT = Productos.EMP_NIT AND Docproductos.CODPROD = Productos.CODPROD
-            WHERE (Docproductos.EMP_NIT = '${empnit}') AND (Docproductos.CODDOC = '${coddoc}') AND (Docproductos.DOC_NUMERO = '${correlativo}') AND (Productos.DESPROD3 = '${bodega}'); `         
-            break;
-        case 'COMMUNITY':
-            
-            qry = `SELECT CODPROD,DESPROD,CODMEDIDA,CANTIDAD,TOTALUNIDADES,TOTALPRECIO FROM DOCPRODUCTOS WHERE EMPNIT='${empnit}' AND CODDOC='${coddoc}' AND CORRELATIVO=${correlativo}` 
-            break;
+    qry = `SELECT CODPROD,DESPROD,CODMEDIDA,CANTIDAD,TOTALUNIDADES,TOTALPRECIO FROM COMMUNITY_DOCPRODUCTOS_DOMICILIO WHERE EMPNIT='${empnit}' AND CODDOC='${coddoc}' AND CORRELATIVO=${correlativo} AND TOKEN='${token}' ` 
     
-        default:
-            break;
-    }
-
-
     execute.Query(res,qry);
 });
 
