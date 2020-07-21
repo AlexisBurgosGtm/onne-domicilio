@@ -32,14 +32,14 @@ router.get("/tempVentastotal", async(req,res)=>{
     let empnit = req.query.empnit;
     let usuario = req.query.usuario;
     let token = req.query.token;
-    let app = req.query.app;
-    let sucursal = req.query.sucursal;
+    let coddoc = req.query.coddoc;
+    
 
     let qry = '';
 
-    qry = `SELECT COUNT(CODPROD) AS TOTALITEMS, SUM(TOTALCOSTO) AS TOTALCOSTO, SUM(TOTALPRECIO) AS TOTALPRECIO, SUM(EXENTO) AS TOTALEXENTO
+    qry = `SELECT COUNT(CODPROD) AS TOTALITEMS, SUM(TOTALCOSTO) AS TOTALCOSTO, SUM(TOTALPRECIO) AS TOTALPRECIO, SUM(ISNULL(EXENTO,0)) AS TOTALEXENTO
             FROM TEMP_VENTAS
-            WHERE (EMPNIT = '${sucursal}') AND (TOKEN = '${empnit}')`
+            WHERE (EMPNIT = '${empnit}') AND (TOKEN = '${token}') AND (CODDOC='${coddoc}') `
         
 
     execute.Query(res,qry);
@@ -63,23 +63,12 @@ router.get("/tempVentas", async(req,res)=>{
 // obtiene row de temp ventas
 router.post("/tempVentasRow", async(req,res)=>{
     
-    const {id,app} = req.body;
+    const { id, token } = req.body;
 
     let qry = '';
-    switch (app) {
-        case 'ISC':
-            qry = `SELECT ID,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,COSTO,PRECIO,EXENTO FROM TEMP_VENTAS WHERE ID=${id}`
-
-            break;
     
-        case 'COMMUNITY':
-            qry = `SELECT ID,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,COSTO,PRECIO,EXENTO FROM TEMP_VENTAS WHERE ID=${id}`
-            break;
-    
-        default:
-            break;
-    }
-  
+    qry = `SELECT ID,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,COSTO,PRECIO,EXENTO FROM TEMP_VENTAS WHERE ID=${id} AND TOKEN='${token}' `
+      
     execute.Query(res,qry);
     
 });
@@ -87,24 +76,11 @@ router.post("/tempVentasRow", async(req,res)=>{
 // ACTUALIZA el grid de temp ventas
 router.put("/tempVentasRow", async(req,res)=>{
     
-    const {app,id,totalcosto,totalprecio,cantidad,totalunidades,exento} = req.body;
+    const {token,id,totalcosto,totalprecio,cantidad,totalunidades,exento} = req.body;
     
     let qry = '';
-    switch (app) {
-        case 'ISC':
-            qry = `UPDATE TEMP_VENTAS SET CANTIDAD=${cantidad},TOTALCOSTO=${totalcosto},TOTALPRECIO=${totalprecio},TOTALUNIDADES=${totalunidades},EXENTO=${exento} WHERE ID=${id}`
-
-            break;
-    
-        case 'COMMUNITY':
-            qry = `UPDATE TEMP_VENTAS SET CANTIDAD=${cantidad},TOTALCOSTO=${totalcosto},TOTALPRECIO=${totalprecio},TOTALUNIDADES=${totalunidades},EXENTO=${exento} WHERE ID=${id}`
-            break;
-    
-        default:
-            break;
-    }
-
-    
+    qry = `UPDATE TEMP_VENTAS SET CANTIDAD=${cantidad},TOTALCOSTO=${totalcosto},TOTALPRECIO=${totalprecio},TOTALUNIDADES=${totalunidades},EXENTO=${exento} WHERE ID=${id} AND TOKEN='${token}' `
+      
     
     execute.Query(res,qry);
     

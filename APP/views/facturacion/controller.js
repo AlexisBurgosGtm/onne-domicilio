@@ -577,6 +577,14 @@ let controllerventa = {
                 funciones.AvisoError('Escriba el NIT o código de cliente para comprobar');
             };
             
+        });
+
+        GlobalSelectedSucursal.addEventListener('change',async ()=>{
+            try {
+                await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
+            } catch (error) {
+                
+            }
         })
 
         
@@ -702,7 +710,7 @@ let controllerventa = {
                             //socket.emit('productos nuevo', document.getElementById('desprod').value || 'sn');
                             $('#ModalBusqueda').modal('hide')
                             await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
-                            await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
+                            //await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
                             socket.emit('ventas nueva','Nuevo pedido disponible',GlobalSelectedSucursal.value);
                             let txbusqueda = document.getElementById('txtBusqueda');
                             txbusqueda.value = '';txbusqueda.focus();
@@ -995,8 +1003,6 @@ let controllerventa = {
     },
     fcnCargarTotal: async function (idContenedor,idContenedor2){
 
-        return;
-
         let container = document.getElementById(idContenedor);
         let container2 = document.getElementById(idContenedor2);
         
@@ -1006,10 +1012,11 @@ let controllerventa = {
 
         container.innerHTML = '0'
         container2.innerHTML = '0'
+        let coddoc = document.getElementById('cmbCoddoc').value;
 
         try {
             
-            const response = await fetch('/ventas/tempventastotal?empnit=' + GlobalEmpnit + '&usuario=' + GlobalUsuario  + '&sucursal=' + GlobalSelectedSucursal)
+            const response = await fetch('/ventas/tempventastotal?empnit=' + GlobalSelectedSucursal.value + '&usuario=' + GlobalUsuario  + '&token=' + GlobalToken + '&coddoc=' + coddoc)
             const json = await response.json();
         
             let data = json.recordset.map((rows)=>{
@@ -1150,7 +1157,7 @@ let controllerventa = {
         
         axios.post('/ventas/tempVentasRow', {
             id:id,
-            app: GlobalSistema
+            token: GlobalToken
         })
         .then((response) => {
             const data = response.data;
@@ -1166,7 +1173,7 @@ let controllerventa = {
             let totalexento = Number(exento) * Number(cantidad);
             let totalunidades = Number(equivale) * Number(cantidad);
                 axios.put('/ventas/tempVentasRow', {
-                    app: GlobalSistema,
+                    token: GlobalToken,
                     id:id,
                     totalcosto:totalcosto,
                     totalprecio:totalprecio,
