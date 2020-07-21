@@ -907,6 +907,7 @@ let controllerventa = {
         let tabla = document.getElementById(idContenedor);
         let lbtotalv = document.getElementById('txtTotalVenta'); 
         let varTotalVenta =0; let varTotalCosto=0;
+        let coddoc = document.getElementById('cmbCoddoc').value
 
         GlobalTotalCostoDocumento
         let btnCobrarTotal = document.getElementById('btnCobrar')
@@ -916,7 +917,7 @@ let controllerventa = {
 
         try {
             
-            const response = await fetch('/ventas/tempventas?empnit=' + GlobalSelectedSucursal.value + '&usuario=' + GlobalUsuario +  '&token=' + GlobalToken)
+            const response = await fetch('/ventas/tempventas?empnit=' + GlobalSelectedSucursal.value + '&usuario=' + GlobalUsuario +  '&token=' + GlobalToken + '&coddoc=' + coddoc)
             const json = await response.json();
             let idcant = 0;
             let data = json.recordset.map((rows)=>{

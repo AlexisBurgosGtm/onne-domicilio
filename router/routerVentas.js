@@ -49,14 +49,12 @@ router.get("/tempVentastotal", async(req,res)=>{
 // obtiene el grid de temp ventas
 router.get("/tempVentas", async(req,res)=>{
     let empnit = req.query.empnit;
-    let usuario = req.query.usuario;
     let token = req.query.token;
-    let app = req.query.app;
-    let sucursal = req.query.sucursal;
+    let coddoc = req.query.coddoc;
 
     let qry = '';
     qry = `SELECT TEMP_VENTAS.ID,TEMP_VENTAS.CODPROD, TEMP_VENTAS.DESPROD, TEMP_VENTAS.CODMEDIDA, TEMP_VENTAS.CANTIDAD, TEMP_VENTAS.EQUIVALE,TEMP_VENTAS.COSTO, TEMP_VENTAS.PRECIO, TEMP_VENTAS.TOTALCOSTO, TEMP_VENTAS.TOTALPRECIO
-           FROM TEMP_VENTAS WHERE (TEMP_VENTAS.EMPNIT = '${sucursal}') AND (TEMP_VENTAS.TOKEN = '${empnit}') `   
+           FROM TEMP_VENTAS WHERE (TEMP_VENTAS.EMPNIT = '${empnit}') AND (TEMP_VENTAS.CODDOC='${coddoc}') AND (TEMP_VENTAS.TOKEN = '${token}') `   
     
     execute.Query(res,qry);
     
