@@ -627,12 +627,20 @@ let controllerventa = {
             let tabla = document.getElementById(idTablaResultado);
             tabla.innerHTML = GlobalLoader;
             
+            let strClass = '';
     
             let str = ""; 
-            axios.get('/ventas/buscarproducto?empnit=' + GlobalEmpnit + '&filtro=' + filtro + '&app=' + GlobalSistema + '&sucursal=' + GlobalSelectedSucursal.value)
+            axios.get('/ventas/buscarproducto?empnit=' + GlobalSelectedSucursal.value + '&filtro=' + filtro + '&app=' + GlobalSistema + '&token=' + GlobalToken)
             .then((response) => {
                 const data = response.data;        
                 data.recordset.map((rows)=>{
+                    
+                    if(Number(rows.SALDO)>0){
+                        strClass ='';
+                    }else{
+                        strClass ='bg-danger text-white';
+                    };
+
                     let totalexento = 0;
                     if (rows.EXENTO==1){totalexento=Number(rows.PRECIO)}
                     str += `<tr id="${rows.CODPROD}">
@@ -644,7 +652,7 @@ let controllerventa = {
                     <td>${rows.CODMEDIDA}<br>
                         <small>${rows.EQUIVALE} item</small>
                         <br>
-                        <small class="text-success">Exist: ${rows.EXISTENCIA}</small>
+                        <small class="text-success">Exist: ${rows.SALDO}</small>
                     </td>
                     <td>${funciones.setMoneda(rows.PRECIO || 0,'Q ')}</td>
                     <td>${rows.DESMARCA}</td>
