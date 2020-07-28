@@ -111,6 +111,26 @@ let funciones = {
             //'tblProductosVentas'
         })
     },
+    getCantidad: function(){
+      return new Promise((resolve,reject)=>{
+        swal({
+          text: 'Escriba la nueva cantidad',
+          content: "input",
+          button: {
+            text: "ACEPTAR",
+            closeModal: true,
+          },
+        })
+        .then(name => {
+          if (!name) throw null;
+            resolve(name);
+        })
+        .catch(()=>{
+          reject();
+        })
+      })
+      
+  },
     setMoneda: function(num,signo) {
         num = num.toString().replace(/\$|\,/g, '');
         if (isNaN(num)) num = "0";

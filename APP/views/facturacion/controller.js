@@ -963,9 +963,12 @@ let controllerventa = {
                             <td class="text-right">${rows.CODMEDIDA}<br>
                                 <small>${rows.EQUIVALE} item</small></td>
                             <td class="text-center">
-                                <button class="btn btn-outline-secondary btn-xs btn-icon rounded-circle" onClick="controllerventa.fcnDisminuirCantidad(${idcant},'${'S'+idcant}',${rows.PRECIO},${rows.ID});">-</button>
+                                
                                 <b class="text-danger h4" id=${idcant}>${rows.CANTIDAD}</b>
-                                <button class="btn btn-outline-info btn-xs btn-icon rounded-circle" onClick="controllerventa.fcnAumentarCantidad(${idcant},'${'S'+idcant}',${rows.PRECIO},${rows.ID});">+</button>
+
+                                <button class="btn btn-outline-info btn-xs btn-icon rounded-circle" onClick="controllerventa.fcnAumentarCantidad(${idcant},'${'S'+idcant}',${rows.PRECIO},${rows.ID}, ${rows.EQUIVALE}, ${rows.COSTO});">
+                                    <i class="fal fa-refresh"></i>
+                                </button>
                             </td>
                             <td class="text-right">${funciones.setMoneda(rows.PRECIO,'Q')}</td>
                             <td class="text-right" id=${'S'+idcant}>${funciones.setMoneda(rows.PRECIO,'Q')}</td>
@@ -991,7 +994,15 @@ let controllerventa = {
             GlobalTotalDocumento = 0;
         }
     },
-    fcnAumentarCantidad: function (idCantidad, idSubtotal, precio,id){
+    fcnAumentarCantidad: function (idCantidad, idSubtotal, precio, id, equivale, costo){
+
+        funciones.getCantidad()
+        .then((cant)=>{
+            controllerventa.fcnUpdateCantidad(id,cant,equivale,costo,precio);
+        })
+
+        return;
+
         let cantidad = document.getElementById(idCantidad);
         let cant = document.getElementById(idCantidad).innerText;
         
@@ -1205,6 +1216,34 @@ let controllerventa = {
         });  
 
         
+    },
+    fcnUpdateCantidad: async(id,cantidad,equivale,costo,precio)=>{
+        let cant =Number(cantidad);
+        let totalunidades = cant * Number(equivale);
+        let totalcosto = cant * Number(costo);
+        let totalprecio = cant * Number(precio);
+        
+                axios.put('/ventas/tempVentasRow', {
+                    token : GlobalToken,
+                    id : id,
+                    totalcosto : totalcosto,
+                    totalprecio : totalprecio,
+                    cantidad : cant,
+                    totalunidades : totalunidades,
+                    exento : 0
+                })
+                .then(async(re) => {
+                    const data2 = re.data;
+                    if (data2.rowsAffected[0]==0){
+                        funciones.AvisoError('No se logró actualizar');
+                    }else{
+                        //await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');                       
+                        await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
+                    }
+                }, (error) => {
+                    console.log(error);
+                });  
+                
     },
     fcnGetMunicipios: async(idContainer)=>{
         let container = document.getElementById(idContainer);
