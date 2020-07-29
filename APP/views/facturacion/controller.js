@@ -964,14 +964,16 @@ let controllerventa = {
                                 <small>${rows.EQUIVALE} item</small></td>
                             <td class="text-center">
                                 
+                                <button class="btn btn-info btn-xs btn-icon rounded-circle" onClick="controllerventa.fcnAumentarCantidad(${idcant},'${'S'+idcant}',${rows.PRECIO},${rows.ID}, ${rows.EQUIVALE}, ${rows.COSTO});">
+                                    +
+                                </button>
+
                                 <b class="text-danger h4" id=${idcant}>${rows.CANTIDAD}</b>
 
-                                <button class="btn btn-outline-info btn-xs btn-icon rounded-circle" onClick="controllerventa.fcnAumentarCantidad(${idcant},'${'S'+idcant}',${rows.PRECIO},${rows.ID}, ${rows.EQUIVALE}, ${rows.COSTO});">
-                                    <i class="fal fa-refresh"></i>
-                                </button>
+                                
                             </td>
                             <td class="text-right">${funciones.setMoneda(rows.PRECIO,'Q')}</td>
-                            <td class="text-right" id=${'S'+idcant}>${funciones.setMoneda(rows.PRECIO,'Q')}</td>
+                            <td class="text-right" id=${'S' +idcant}>${funciones.setMoneda(rows.TOTALPRECIO,'Q')}</td>
                             <td>
                                 <button class="btn btn-sm btn-danger btn-circle text-white" onclick="controllerventa.fcnEliminarItem(${rows.ID});">
                                     x
@@ -999,6 +1001,9 @@ let controllerventa = {
         funciones.getCantidad()
         .then((cant)=>{
             controllerventa.fcnUpdateCantidad(id,cant,equivale,costo,precio);
+        })
+        .catch(()=>{
+            funciones.AvisoError('Cantidad inválida');
         })
 
         return;
@@ -1223,6 +1228,9 @@ let controllerventa = {
         let totalcosto = cant * Number(costo);
         let totalprecio = cant * Number(precio);
         
+        console.log(totalcosto);
+        console.log(totalprecio);
+
                 axios.put('/ventas/tempVentasRow', {
                     token : GlobalToken,
                     id : id,

@@ -123,7 +123,12 @@ let funciones = {
         })
         .then(name => {
           if (!name) throw null;
-            resolve(name);
+            if(Number(name)>0){
+              resolve(name);
+            }else{
+              reject();
+            }
+            
         })
         .catch(()=>{
           reject();

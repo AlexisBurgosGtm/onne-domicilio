@@ -82,7 +82,7 @@ router.put("/tempVentasRow", async(req,res)=>{
     const {token,id,totalcosto,totalprecio,cantidad,totalunidades,exento} = req.body;
     
     let qry = '';
-    qry = `UPDATE TEMP_VENTAS SET CANTIDAD=${cantidad},TOTALCOSTO=${totalcosto},TOTALPRECIO=${totalprecio},TOTALUNIDADES=${totalunidades},EXENTO=${exento} WHERE ID=${id} AND TOKEN='${token}' `
+    qry = `UPDATE TEMP_VENTAS SET CANTIDAD=${cantidad},TOTALCOSTO=${totalcosto},TOTALPRECIO=${totalprecio},TOTALUNIDADES=${totalunidades},EXENTO=${exento} WHERE ID=${id} `
       
     
     execute.Query(res,qry);
