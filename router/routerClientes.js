@@ -4,73 +4,24 @@ const router = express.Router();
 
 // BUSCA CLIENTE POR NOMBRE
 router.get("/buscarcliente", async(req,res)=>{
-    const {app,empnit,filtro} = req.query;
+    const {token,empnit,filtro} = req.query;
         
     let qry ='';
-
-    switch (app) {
-        case 'ISC':
-            qry = `SELECT Clientes.NITCLIE AS CODCLIE, Clientes.NITFACTURA AS NIT, Clientes.NOMCLIE, Clientes.DIRCLIE, Clientes.CODMUNI AS CODMUNICIPIO, Municipios.DESMUNI AS DESMUNICIPIO, Clientes.CODDEPTO, 
-                    Departamentos.DESDEPTO, Clientes.LISTA AS PRECIO, 0 AS SALDO, Clientes.LATITUDCLIE AS LAT, Clientes.LONGITUDCLIE AS LONG
-                FROM Clientes LEFT OUTER JOIN
-                    Departamentos ON Clientes.CODDEPTO = Departamentos.CODDEPTO AND Clientes.EMP_NIT = Departamentos.EMP_NIT LEFT OUTER JOIN
-                    Municipios ON Clientes.EMP_NIT = Municipios.EMP_NIT AND Clientes.CODMUNI = Municipios.CODMUNI
-                WHERE (Clientes.EMP_NIT = '${empnit}') AND (Clientes.NOMCLIE LIKE '%${filtro}%')`     
-            break;
-        case 'COMMUNITY':
-            qry = `SELECT CLIENTES.CODCLIENTE AS CODCLIE, CLIENTES.NIT, CLIENTES.NOMBRECLIENTE AS NOMCLIE, CLIENTES.DIRCLIENTE AS DIRCLIE, CLIENTES.CODMUNICIPIO, MUNICIPIOS.DESMUNICIPIO, 
-                    DEPARTAMENTOS.DESDEPARTAMENTO AS DESDEPTO, CLIENTES.CALIFICACION AS PRECIO, CLIENTES.SALDO, CLIENTES.LATITUDCLIENTE AS LAT, CLIENTES.LONGITUDCLIENTE AS LONG
-                FROM CLIENTES LEFT OUTER JOIN
-                    DEPARTAMENTOS ON CLIENTES.CODDEPARTAMENTO = DEPARTAMENTOS.CODDEPARTAMENTO LEFT OUTER JOIN
-                    MUNICIPIOS ON CLIENTES.CODMUNICIPIO = MUNICIPIOS.CODMUNICIPIO
-                WHERE (CLIENTES.HABILITADO = 'SI') AND (CLIENTES.NOMBRECLIENTE LIKE '%${filtro}%') AND (CLIENTES.EMPNIT = '${empnit}')`  
-            break;
-    
-        default:
-            break;
-    }
-    
+    qry = `SELECT CODCLIENTE AS CODCLIE, NIT, NOMBRECLIENTE AS NOMCLIE, DIRCLIENTE AS DIRCLIE, TELEFONOCLIENTE AS TELEFONO, LATITUDCLIENTE AS LAT, LONGITUDCLIENTE AS LONG FROM COMMUNITY_CLIENTES_DOMICILIO WHERE TOKEN='${token}'AND EMPNIT='${empnit}' AND NOMBRECLIENTE LIKE '%${filtro}%' AND HABILITADO='SI' `  
+          
     execute.Query(res,qry);
 
 });
 
 // AGREGA UN NUEVO CLIENTE
 router.post("/clientenuevo", async(req,res)=>{
-    const {app,fecha,codven,empnit,codclie,nitclie,nomclie,nomfac,dirclie,coddepto,codmunicipio,codpais,telclie,emailclie,codbodega,tipoprecio,lat,long} = req.body;
+    const {empnit,nit,nombre,direccion,codmun,coddepto,telefono,lat,long,tipoprecio,fechainicio,token} = req.body;
     
     let qry ='';
 
-    switch (app) {
-        case 'ISC':
-            qry = `INSERT INTO CLIENTES (
-                EMP_NIT, NITCLIE, CODCLIE, NOMCLIE, DIRCLIE,
-                CODDEPTO, CODMUNI, TELCLIE, EMAILCLIE, TIPOCLIE,
-                ACEPTACHEQUE, FECHAINGRESO, NITFACTURA, CODVEN, LIMITECREDITO,
-                DIASCREDITO, CODPAIS, NOMFAC, CODBODEGA, DESCUENTO,
-                CODTIPOCLIE, COMISION, IMPUESTO1, TEMPORADACREDITO, TEMPORADADIAS,
-                VENTADOLARES, VENTAEXPORTA, MONTOIVARET, PORIVARET, CODTIPOFP,
-                UTILIZAPUNTOS, TIPOPUNTOS, NCUOTAS, VARIASLISTAS, DIASPRIMERCUOTA,
-                DIASCUOTAS, CALCULOCUOTAS, CLIE_CARGOAUT, TIPO_CARGOAUT, LATITUDCLIE, LONGITUDCLIE,
-                LATITUD, LONGITUD
-            )VALUES(
-                '${empnit}','${codclie}',0,'${nomclie}','${dirclie}',
-                '${coddepto}','${codmunicipio}','${telclie}','${emailclie}','${tipoprecio}',
-                0,'${fecha}','${nitclie}','${codven}',0,
-                30,'${codpais}','${nomfac}','${codbodega}',0,
-                'A',0,0,0,0,
-                0,0,0,0,0,
-                0,'NUNCA',0,0,0,
-                0,0,0,0,0,0,
-                '${lat}','${long}'
-            )`         
-            break;
-        case 'COMMUNITY':
-            qry = ``
-            break;
+    qry = `INSERT INTO COMMUNITY_CLIENTES_DOMICILIO (EMPNIT,DPI,NIT,NOMBRECLIENTE,DIRCLIENTE,CODMUNICIPIO,CODDEPARTAMENTO,TELEFONOCLIENTE,EMAILCLIENTE,LATITUDCLIENTE,LONGITUDCLIENTE,CATEGORIA,CIUDADANIA,CODRUTA,FECHAINICIO,HABILITADO,PROVINCIA,TOKEN) 
+    VALUES ('${empnit}','SN','${nit}','${nombre}','${direccion}',${codmun},${coddepto},'${telefono}','SN','${lat}','${long}','${tipoprecio}','SN',1,'${fechainicio}','SI','SN','${token}');`
     
-        default:
-            break;
-    };
     execute.Query(res,qry);
 
 });

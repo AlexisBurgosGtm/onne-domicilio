@@ -204,8 +204,7 @@ let controllerventa = {
                                     <tr>
                                         <td>Nombre</td>
                                         <td>Dirección</td>
-                                        <td>Municipio</td>
-                                        <td>Saldo</td>
+                                        <td>Teléfono</td>
                                         <td></td>
                                     </tr>
                                 </thead>
@@ -235,43 +234,26 @@ let controllerventa = {
                             </div>
                 
                             <div class="modal-body">
-                                <form class="col-12" id="formNuevoCliente">
-                                    <div class="form-group col-6">
-                                        <label>Código/NIT:</label>
-                                        <input type="text" class="form-control" id='txtClienteNit' required='true' readonly="true">
-                                    </div>
-
+                                <div class="col-12" id="formNuevoCliente">
                                     <div class="row">
                                         <div class="form-group col-6">
-                                            <label>Nombre Cliente:</label>
-                                            <input type="text" class="form-control" id='txtClienteNombre' required='true'>
-                                        </div>                               
+                                            <label>Código/NIT:</label>
+                                            <input type="text" class="form-control" id='txtClienteNit' required='true' readonly="true">
+                                        </div>
                                         <div class="form-group col-6">
-                                            <label>Nombre para Factura:</label>
-                                            <input type="text" class="form-control" id='txtClienteNombreFac' required='true'>
-                                        </div>                               
-                                    </div>
-                                    
+                                            <label>Teléfono:</label>
+                                             <input type="number" class="form-control" id='txtClienteTelefono'>                                       
+                                        </div>
+                                    </div>                                  
+
+                                    <div class="form-group">
+                                        <label>Nombre Cliente:</label>
+                                        <input type="text" class="form-control" id='txtClienteNombre' required='true'>
+                                    </div>                                                                   
+
                                     <div class="form-group">
                                         <label>Dirección:</label>
                                         <input type="text" class="form-control" id='txtClienteDireccion' required='true'>
-                                    </div>
-
-                                    <!-- Telefono y Email -->
-                                    <div class="row">
-                                        <div class="form-group col-6">
-                                            <label>Teléfono:</label>
-                                            <div class="row">
-                                                <select class="form-control col-3">
-                                                    <option value="502">+502</option>
-                                                </select>
-                                                <input type="number" class="form-control col-9" id='txtClienteTelefono'>    
-                                            </div>
-                                        </div>
-                                        <div class="form-group col-6">
-                                            <label>Email:</label>
-                                            <input type="email" class="form-control" id='txtClienteEmail'>
-                                        </div>                               
                                     </div>
 
                                     <!-- municipio y departamento -->
@@ -295,21 +277,27 @@ let controllerventa = {
                                         <label>Tipo de Precio:</label>
                                         <select class="form-control" id="cmbClienteTipoPrecio">
                                             <option value="P">PÚBLICO</option>
-                                            <option value="M">MAYORISTA</option>
+                                            <option value="A">MAYORISTA A</option>
                                         </select>
                                     </div>
 
                                     <div class="form-group table-scale-border-top border-left-0 border-right-0 border-bottom-0 text-right">
                                         <br>
                                         <button class="btn btn-warning btn-round btn-lg" data-dismiss="modal" id="btnCancelarCliente">
+                                            <i class="fal fa-cancel"></i>
                                             CANCELAR
                                         </button>
+                                        
                                         <button class="btn btn-transparent"></button>
-                                        <input type="submit" class="btn btn-primary btn-round btn-lg" value="GUARDAR">
+
+                                        <button class="btn btn-primary btn-round btn-lg" id="btnGuardarCliente">
+                                            <i class="fal fa-save"></i>
+                                            GUARDAR
+                                        </button>
                                             
                                     </div>
 
-                                </form>
+                                </div>
 
                             </div>
                         </div>
@@ -471,10 +459,21 @@ let controllerventa = {
 
         controllerventa.getView();
         
-        await classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc','txtCorrelativo');
+        let cmbCoddoc = document.getElementById('cmbCoddoc');
 
-        let txtFecha = document.getElementById('txtFecha');txtFecha.value = funciones.getFecha();
-        let txtEntregaFecha = document.getElementById('txtEntregaFecha');txtEntregaFecha.value = funciones.getFecha();
+        //await classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc','txtCorrelativo');
+        // carga el combobox de documentos, el correlativo y el grid temp
+        classTipoDocumentos.getComboboxTipodoc('PED','cmbCoddoc','txtCorrelativo')
+        .then(async()=>{
+            await classTipoDocumentos.fcnCorrelativoDocumento('PED',cmbCoddoc.value,'txtCorrelativo');
+            await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
+        })
+
+        let txtFecha = document.getElementById('txtFecha');
+        txtFecha.value = funciones.getFecha();
+
+        let txtEntregaFecha = document.getElementById('txtEntregaFecha');
+        txtEntregaFecha.value = funciones.getFecha();
 
         // listener para el nit
         let txtNit = document.getElementById('txtNit');
@@ -522,9 +521,7 @@ let controllerventa = {
         
         });
 
-        let cmbCoddoc = document.getElementById('cmbCoddoc');
-        //classTipoDocumentos.comboboxTipodoc('PED','cmbCoddoc','txtCorrelativo');
-        
+                
         cmbCoddoc.addEventListener('change',async ()=>{
             await classTipoDocumentos.fcnCorrelativoDocumento('PED',cmbCoddoc.value,'txtCorrelativo','txtCorrelativo');
             // carga el grid
@@ -539,17 +536,15 @@ let controllerventa = {
         });
 
         //BUSQUEDA CLIENTES
-        let frmNuevoCliente = document.getElementById('formNuevoCliente');
-        frmNuevoCliente.addEventListener('submit',(e)=>{
-            e.preventDefault();
+        let btnGuardarCliente = document.getElementById('btnGuardarCliente');
+        btnGuardarCliente.addEventListener('click',()=>{
             funciones.Confirmacion('¿Está seguro que desea guardar este cliente?')
             .then((value)=>{
                 if(value==true){
-                    controllerventa.fcnGuardarNuevoCliente(frmNuevoCliente);
+                    controllerventa.fcnGuardarNuevoCliente();
                 }
             })
-
-        });
+        })
 
         let btnBusquedaClientes = document.getElementById('btnBusquedaClientes');
         btnBusquedaClientes.addEventListener('click',()=>{
@@ -569,6 +564,7 @@ let controllerventa = {
         document.getElementById('btnBuscarCliente').addEventListener('click',()=>{
             controllerventa.fcnBusquedaCliente('txtBusquedaCliente','tblResultadoBusquedaCliente');
         });
+
         document.getElementById('btnNuevoCliente').addEventListener('click',()=>{
             //$('#ModalNuevoCliente').modal('show');
             if(txtNit.value!==''){
@@ -604,17 +600,10 @@ let controllerventa = {
             }
         });
 
-        // carga el grid
-        await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
-        //await controllerventa.fcnCargarTotal('txtTotalVenta','txtTotalVentaCobro');
-        
         await classEmpleados.comboboxVendedores('cmbVendedor');
-
-        
-        //await classTipoDocumentos.fcnCorrelativoDocumento('PED',cmbCoddoc.value,'txtCorrelativo');
-        
-        await controllerventa.fcnGetMunicipios('cmbClienteMunicipio');
-        await controllerventa.fcnGetDepartamentos('cmbClienteDepartamento');
+                        
+        controllerventa.fcnGetMunicipios('cmbClienteMunicipio');
+        controllerventa.fcnGetDepartamentos('cmbClienteDepartamento');
 
     },
     fcnBusquedaProducto: async function(idFiltro,idTablaResultado){
@@ -738,11 +727,14 @@ let controllerventa = {
     },
     fcnBuscarCliente: async(idNit,idNombre,idDireccion)=>{
         
+        let btn = document.getElementById('btnNuevoCliente');
+        btn.innerHTML = GlobalLoader;
+
         let nit = document.getElementById(idNit);
         let nombre = document.getElementById(idNombre);
         let direccion = document.getElementById(idDireccion);
 
-        axios.get('/ventas/buscarcliente?empnit=' + GlobalEmpnit + '&nit=' + nit.value  + '&app=' + GlobalSistema)
+        axios.get('/ventas/buscarcliente?empnit=' + GlobalEmpnit + '&nit=' + nit.value  + '&token=' + GlobalToken)
         .then((response) => {
             const data = response.data;
             
@@ -758,7 +750,7 @@ let controllerventa = {
 
                         document.getElementById('txtNombre').value = json.descripcion;
                         document.getElementById('txtDireccion').value = json.direcciones.direccion;
-
+                        
                         $('#ModalNuevoCliente').modal('show');
                     }else{
                         document.getElementById('txtClienteNit').value = nit.value;
@@ -766,6 +758,7 @@ let controllerventa = {
                         document.getElementById('txtDireccion').value = '';
                         $('#ModalNuevoCliente').modal('show');
                     };
+                    btn.innerHTML = '+';
 
                 })
                 .catch(()=>{
@@ -773,18 +766,23 @@ let controllerventa = {
                     document.getElementById('txtClienteNit').value = nit.value;
                     document.getElementById('txtNombre').value = '';
                     document.getElementById('txtDireccion').value = '';
-
+                    
+                    btn.innerHTML = '+';
+                    
                     document.getElementById('txtClienteNombre').focus();
+                    
                 })
             }else{
                 data.recordset.map((rows)=>{
                     nombre.value = rows.NOMCLIENTE;
                     direccion.value = rows.DIRCLIENTE;
-                })
+                });
+                btn.innerHTML = '+';
             }
                     
         }, (error) => {
             console.log(error);
+            btn.innerHTML = '+';
         });
     },
     fcnBusquedaCliente: async function(idFiltro,idTablaResultado){
@@ -795,7 +793,7 @@ let controllerventa = {
 
 
         let str = ""; 
-        axios.get('/clientes/buscarcliente?empnit=' + GlobalEmpnit + '&filtro=' + filtro + '&app=' + GlobalSistema)
+        axios.get('/clientes/buscarcliente?empnit=' + GlobalEmpnit + '&filtro=' + filtro + '&token=' + GlobalToken)
         .then((response) => {
             const data = response.data;        
             data.recordset.map((rows)=>{
@@ -807,11 +805,11 @@ let controllerventa = {
                             </td>
                             <td>${rows.DIRCLIE}</td>
                             <td>
-                                ${rows.DESMUNICIPIO}
-                                <br>
-                                <small>${rows.DESDEPTO}</small>
+                                <a href='https://api.whatsapp.com/send?phone=502${rows.TELEFONO}&text=FARMACIA%20SALUD%20Y%20AHORRO%3A%20' target="_blank">
+                                    ${rows.TELEFONO}
+                                </a>
                             </td>
-                            <td>${funciones.setMoneda(rows.SALDO,'Q')}</td>
+                            
                             <td>
                                 <button class="btn btn-sm btn-success btn-circle text-white" 
                                 onclick="controllerventa.fcnAgregarClienteVenta('${rows.CODCLIE}','${rows.NIT}','${rows.NOMCLIE}','${rows.DIRCLIE}')">
@@ -834,48 +832,38 @@ let controllerventa = {
         document.getElementById('txtDireccion').value = direccion;
         $('#ModalBusquedaCliente').modal('hide');  
     },
-    fcnGuardarNuevoCliente: async (form)=>{
+    fcnGuardarNuevoCliente: async ()=>{
+               
         
-        let nit = form[0].value;
-        let nomclie = form[1].value;
-        let nomfac = form[2].value;
-        let dirclie = form[3].value;
-        let codpais = form[4].value;
-        let telclie = form[5].value;
-        let emailclie = form[6].value;
-        let codmunicipio = form[7].value;
-        let coddepto = form[8].value;
-        let tipoprecio = form[9].value;
-
-        let codven = document.getElementById('cmbVendedor').value;
-
         // OBTIENE LA LATITUD Y LONGITUD DEL CLIENTE
         let lat = ''; let long = '';
         try {navigator.geolocation.getCurrentPosition(function (location) {lat = location.coords.latitude.toString();long = location.coords.longitude.toString(); })
         } catch (error) {lat = '0'; long = '0'; };
         
+        let nit = document.getElementById('txtClienteNit');
+        let nombre = document.getElementById('txtClienteNombre');
+        let direccion = document.getElementById('txtClienteDireccion');
+        let codmun = document.getElementById('cmbClienteMunicipio');
+        let coddepto = document.getElementById('cmbClienteDepartamento');
+        let telefono = document.getElementById('txtClienteTelefono');
+        let tipoprecio = document.getElementById('cmbClienteTipoPrecio');
+        
         // FECHA DE CREACION DEL CLIENTE
         let f = funciones.getFecha();
 
         axios.post('/clientes/clientenuevo', {
-            sucursal:GlobalEmpnit,
-            empnit: GlobalSelectedSucursal.value,
-            codclie:nit,
-            nitclie:nit,
-            nomclie:nomclie,
-            nomfac:nomfac,
-            dirclie:dirclie,
-            coddepto:coddepto,
-            codmunicipio:codmunicipio,
-            codpais:codpais,
-            telclie:telclie,
-            emailclie:emailclie,
-            codbodega:GlobalCodBodega,
-            tipoprecio:tipoprecio,
+            token:GlobalToken,
+            empnit:GlobalEmpnit,
+            nit:nit.value,
+            nombre:nombre.value,
+            direccion:direccion.value,
+            codmun:codmun.value,
+            coddepto:coddepto.value,
+            telefono:telefono.value,
             lat:lat,
             long:long,
-            codven:codven,
-            fecha:f        
+            tipoprecio:tipoprecio.value,
+            fechainicio:f
         })
         .then((response) => {
             const data = response.data;
@@ -883,10 +871,16 @@ let controllerventa = {
                 funciones.AvisoError('No se logró Guardar el nuevo cliente');
             }else{
                 funciones.Aviso('Nuevo Cliente Agregado Exitosamente !!')
-                document.getElementById('txtNit').value = nit;
-                document.getElementById('txtNombre').value = nomclie;
-                document.getElementById('txtDireccion').value = dirclie;
+                
+                document.getElementById('txtNombre').value = nombre.value;
+                document.getElementById('txtDireccion').value = direccion.value;
+
                 document.getElementById('btnCancelarCliente').click();
+                
+                nombre.value = '';
+                direccion.value ='';
+                telefono.value = '';
+
             }
         }, (error) => {
             funciones.AvisoError('No se logró Guardar el nuevo cliente');
@@ -1255,13 +1249,14 @@ let controllerventa = {
     },
     fcnGetMunicipios: async(idContainer)=>{
         let container = document.getElementById(idContainer);
-        container.innerHTML = GlobalLoader;
+        container.innerHTML = `<option value="2">GUATEMALA</option>`
 
         
     },
     fcnGetDepartamentos: async(idContainer)=>{
         let container = document.getElementById(idContainer);
-        container.innerHTML = GlobalLoader;
+        container.innerHTML = `<option value="2">GUATEMALA</option>
+                                <option value="7">ESCUINTLA</option>`;
 
        
     }

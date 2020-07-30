@@ -146,11 +146,11 @@ router.post("/tempVentastodos", async(req,res)=>{
 // VENTAS BUSCAR CLIENTE POR NIT O CODIGO
 router.get("/buscarcliente", async(req,res)=>{
     
-    const {empnit,nit, app} = req.query;
+    const {empnit, nit, token} = req.query;
     
     let qry = '';
  
-    qry = `SELECT CODCLIENTE,NIT,NOMBRECLIENTE AS NOMCLIENTE, DIRCLIENTE,CATEGORIA FROM CLIENTES WHERE EMPNIT='${empnit}' AND HABILITADO='SI' AND NIT='${nit}'` 
+    qry = `SELECT CODCLIENTE,NIT,NOMBRECLIENTE AS NOMCLIENTE, DIRCLIENTE,CATEGORIA FROM COMMUNITY_CLIENTES_DOMICILIO WHERE EMPNIT='${empnit}' AND HABILITADO='SI' AND NIT='${nit}' AND TOKEN='${token}'  ` 
     
 
     execute.Query(res,qry);
