@@ -68,6 +68,16 @@ app.use('/empleados', routerEmpleados);
 app.use('/clientes', routerClientes);
 
 
+app.get("/reload",function(req,res){
+
+  let sucursal = req.query.sucursal;
+  let msg = req.query.msg;
+
+  io.emit('ventas nueva', msg, sucursal);
+  res.send('200');
+
+}); 
+
 
 app.use("/",router);
 
@@ -85,6 +95,7 @@ io.on('connection', function(socket){
   });
   
 });
+
 
 
 http.listen(PORT, function(){

@@ -21,6 +21,10 @@ socket.on('ventas nueva', function(msg,form){
     //funciones.NotificacionPersistent(msg,"Nueva Orden generada");
 });
 
+socket.on('reload', function(msg,form){
+    funciones.Aviso('recargando datos...')
+})
+
 socket.on('ordenes escribiendo', function(msg,form){
   try {
     if(GlobalSelectedForm=='DESPACHO'){
