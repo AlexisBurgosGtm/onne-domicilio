@@ -196,7 +196,7 @@ router.get("/pedidospendientes", async(req,res)=>{
     const {empnit, token} = req.query;
     
     let qry = '';
-    qry = `SELECT CODDOC, CORRELATIVO, FECHA, DOC_NOMCLIE AS NOMCLIE, DOC_DIRCLIE AS DIRCLIE, OBS, DIRENTREGA, TOTALPRECIO AS IMPORTE FROM COMMUNITY_DOCUMENTOS_DOMICILIO WHERE EMPNIT='${empnit}' AND STATUS='O' AND TOKEN='${token}' ` 
+    qry = `SELECT CODDOC, CORRELATIVO, FECHA, DOC_NOMCLIE AS NOMCLIE, DOC_DIRCLIE AS DIRCLIE, OBS, DIRENTREGA, TOTALPRECIO AS IMPORTE FROM COMMUNITY_DOCUMENTOS_DOMICILIO WHERE EMPNIT='${empnit}' AND CORTE='NO' AND TOKEN='${token}' ` 
     
     execute.Query(res,qry);
 
@@ -207,7 +207,7 @@ router.get("/pedidosdespachados", async(req,res)=>{
     const {empnit, token} = req.query;
     
     let qry = '';
-    qry = `SELECT CODDOC, CORRELATIVO, FECHA, DOC_NOMCLIE AS NOMCLIE, DOC_DIRCLIE AS DIRCLIE, OBS, DIRENTREGA, TOTALPRECIO AS IMPORTE FROM COMMUNITY_DOCUMENTOS_DOMICILIO WHERE EMPNIT='${empnit}' AND STATUS='I' AND TOKEN='${token}' ` 
+    qry = `SELECT CODDOC, CORRELATIVO, FECHA, DOC_NOMCLIE AS NOMCLIE, DOC_DIRCLIE AS DIRCLIE, OBS, DIRENTREGA, TOTALPRECIO AS IMPORTE FROM COMMUNITY_DOCUMENTOS_DOMICILIO WHERE EMPNIT='${empnit}' AND CORTE='SI' AND TOKEN='${token}' ` 
     
     execute.Query(res,qry);
 
@@ -219,7 +219,7 @@ router.post("/pedidodespachado", async(req,res)=>{
     const {empnit, coddoc, correlativo, token} = req.body;
     
     let qry = '';
-    qry = `UPDATE COMMUNITY_DOCUMENTOS_DOMICILIO SET STATUS='I' WHERE EMPNIT='${empnit}' AND CODDOC='${coddoc}' AND CORRELATIVO=${correlativo} AND TOKEN='${token}' ` 
+    qry = `UPDATE COMMUNITY_DOCUMENTOS_DOMICILIO SET CORTE='SI' WHERE EMPNIT='${empnit}' AND CODDOC='${coddoc}' AND CORRELATIVO=${correlativo} AND TOKEN='${token}' ` 
     console.log(qry);
 
     execute.Query(res,qry);
