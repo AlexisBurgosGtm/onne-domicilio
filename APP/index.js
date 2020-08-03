@@ -52,6 +52,10 @@ function createNotification(text) {
 
 classTipoDocumentos.getEmpresas('cmbSucursalSeleccionada')
 .then(()=>{
-  //createNotification('Sucursales Cargadas Exitosamente');
+  createNotification('Sucursales Cargadas Exitosamente');
 })
+.catch(()=>{
+  funciones.AvisoError('No se pudieron cargar las Sucursales');
+});
+
 

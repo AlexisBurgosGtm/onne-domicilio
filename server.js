@@ -73,7 +73,8 @@ app.get("/reload",function(req,res){
   let sucursal = req.query.sucursal;
   let msg = req.query.msg;
 
-  io.emit('ventas nueva', msg, sucursal);
+  
+  io.emit('ventas reload', msg, sucursal);
   res.send('200');
 
 }); 

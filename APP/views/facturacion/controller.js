@@ -404,8 +404,8 @@ let controllerventa = {
                                                 <div class="form-group">
                                                     <label>Recoge en:</label>
                                                     <select class="form-control" id="cmbEntregaTipo">
-                                                        <option value="TIENDA">TIENDA</option>
                                                         <option value="DOMICILIO">ENVIAR A SU DOMICILIO</option>
+                                                        <option value="TIENDA">TIENDA</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group">

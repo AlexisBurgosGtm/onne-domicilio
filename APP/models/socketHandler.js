@@ -21,9 +21,19 @@ socket.on('ventas nueva', function(msg,form){
     //funciones.NotificacionPersistent(msg,"Nueva Orden generada");
 });
 
-socket.on('reload', function(msg,form){
-    funciones.Aviso('recargando datos...')
-})
+socket.on('ventas reload', function(msg,sucursal){
+  
+  try {
+    if(GlobalSelectedForm=='DESPACHO'){
+      if(GlobalSelectedSucursal==sucursal){
+          controllerdespacho.getListadoOrdenes('tblOrdenes');
+      }
+    }     
+  } catch (error) {
+  
+  }
+  
+});
 
 socket.on('ordenes escribiendo', function(msg,form){
   try {

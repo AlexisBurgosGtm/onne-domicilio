@@ -67,7 +67,7 @@ let classTipoDocumentos = {
             let container = document.getElementById(idContainer);
 
             container.innerHTML = GlobalLoader;
-            let str ="<option value='SN'>Seleccione Sucursal</option>";
+            let str = ''; //"<option value='SN'>Seleccione Sucursal</option>";
             axios.get('/tipodocumentos/empresasdomicilio?empnit=' + GlobalEmpnit + '&app=' + GlobalSistema)
             .then((response) => {
             const data = response.data;       

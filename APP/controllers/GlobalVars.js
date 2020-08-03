@@ -9,6 +9,8 @@ let GlobalSelectedForm = '';
 let GlobalSelectedSucursal = document.getElementById('cmbSucursalSeleccionada');
 
 
+let GlobalLogged = 'NO';
+
 let GlobalCoddoc = 'PD999';
 let GlobalTotalDocumento = 0;
 let GlobalTotalCostoDocumento = 0;

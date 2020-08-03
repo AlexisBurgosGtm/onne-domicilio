@@ -4,60 +4,65 @@ function InicializarVista(){
     
     let btnInicioVentas = document.getElementById('btnInicioVentas');
     let btnInicioDespacho = document.getElementById('btnInicioDespacho');
-    //let btnInicioCaja =  document.getElementById('btnInicioCaja');
-    let txtPass = document.getElementById('txtPass');
-    
+   
 
     btnInicioVentas.addEventListener('click',()=>{
-        //$('#ModalLogin').modal('show');
-        GlobalSelectedForm = 'VENTAS';
-        classNavegar.ventas();
-      
-    });
-    btnInicioDespacho.addEventListener('click',()=>{
-        //$('#ModalLogin').modal('show');
-        GlobalSelectedForm = 'DESPACHO';
-        classNavegar.despacho();
-       
+        if(GlobalLogged=='SI'){
+            GlobalSelectedForm = 'VENTAS';
+            classNavegar.ventas();
+        }else{
+            $('#ModalLogin').modal('show');
+        }
     });
 
-    /* 
-    btnInicioCaja.addEventListener('click',()=>{
-        $('#ModalLogin').modal('show');
-        GlobalSelectedApp = 'CAJA';
-      
+    btnInicioDespacho.addEventListener('click',()=>{
+        if(GlobalLogged=='SI'){
+            GlobalSelectedForm = 'DESPACHO';
+            classNavegar.despacho();
+        }else{
+            $('#ModalLogin').modal('show');
+        }
     });
-    */
+
 
     let imgInicioVentas = document.getElementById('imgInicioVentas');
     let imgInicioDespacho = document.getElementById('imgInicioDespacho');
-    //let imgInicioCaja =  document.getElementById('imgInicioCaja');
 
     imgInicioVentas.addEventListener('click',()=>{
-        
-        GlobalSelectedApp = 'VENTAS';
-        classNavegar.ventas();
-        
-        //$('#ModalLogin').modal('show');
+        if(GlobalLogged=='SI'){
+            GlobalSelectedForm = 'VENTAS';
+            classNavegar.ventas();
+        }else{
+            $('#ModalLogin').modal('show');
+        }
       
     });
+
     imgInicioDespacho.addEventListener('click',()=>{
-        //$('#ModalLogin').modal('show');
-        GlobalSelectedApp = 'DESPACHO';
-        classNavegar.despacho();
+        if(GlobalLogged=='SI'){
+            GlobalSelectedForm = 'DESPACHO';
+            classNavegar.despacho();
+        }else{
+            $('#ModalLogin').modal('show');
+        }
     });
-    /* 
-    imgInicioCaja.addEventListener('click',()=>{
-        $('#ModalLogin').modal('show');
-        GlobalSelectedApp = 'CAJA';
-      
-    });
-    */
+    
 
-
+    let txtUser = document.getElementById('txtUser');
+    let txtPass = document.getElementById('txtPass');
     let btnLogin = document.getElementById('btnLogin');
+
     btnLogin.addEventListener('click',async ()=>{
-        await getLogin(txtPass.value,GlobalSelectedApp);
+        await getLogin(txtUser.value,txtPass.value);
+    });
+
+    txtUser.addEventListener('keyup',(e)=>{
+        if(e.code=='Enter'){
+            txtPass.focus();
+        }
+        if(e.code=='NumpadEnter'){
+            txtPass.focus();
+        }
     });
 
     txtPass.addEventListener('keyup',(e)=>{
@@ -69,13 +74,20 @@ function InicializarVista(){
         }
     });
 
+    $('#ModalLogin').modal('show');
+
 };
 
 
-async function getLogin(pass,app){
+async function getLogin(user,pass){
+    GlobalLogged ='SI';
+    $('#ModalLogin').modal('hide');
+    funciones.Aviso('Bienvenido, ahora puede ingresar a cualquier sección de las disponibles')
+    return;
+
     axios.post('/usuarios/login', {
-        pass: pass,
-        app: GlobalSistema
+        user:user,
+        pass:pass
     })
     .then((response) => {
         const data = response.data;
@@ -85,21 +97,6 @@ async function getLogin(pass,app){
                 GlobalNivelUser = Number(rows.NIVEL);
                 $('#ModalLogin').modal('hide');
                 funciones.Aviso('Bienvenido/a ' + GlobalUsuario);
-                switch (app) {
-                    case 'VENTAS':
-                        
-                        classNavegar.ventas();    
-                        break;
-                    case 'DESPACHO':
-                        classNavegar.despacho();    
-                        break;
-                    case 'CAJA':
-                        classNavegar.caja();    
-                        break;
-                    default:
-                        classNavegar.inicio();
-                        break;
-                }
                 
             }else{
                 funciones.AvisoError('Contraseña incorrecta')    
