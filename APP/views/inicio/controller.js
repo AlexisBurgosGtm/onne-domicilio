@@ -52,6 +52,10 @@ function InicializarVista(){
     let txtPass = document.getElementById('txtPass');
     let btnLogin = document.getElementById('btnLogin');
 
+    //Valores temporales
+    txtUser.value = 'domicilio';
+    txtPass.value= '123';
+
     btnLogin.addEventListener('click',async ()=>{
         await getLogin(txtUser.value,txtPass.value);
     });
