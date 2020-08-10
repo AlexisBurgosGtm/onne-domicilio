@@ -545,6 +545,11 @@ let funciones = {
       let de = fe.getUTCDate() 
       let fret = ae + '-' + me + '-' + de;
       return fret;
+    },
+    limitText: (limitField, limitNum)=> {
+      if (limitField.value.length > limitNum) {
+          limitField.value = limitField.value.substring(0, limitNum);
+      }
     }
 };
 

@@ -410,7 +410,7 @@ let controllerventa = {
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Observaciones</label>
-                                                    <textarea rows="4" cols="80" class="form-control" id="txtEntregaObs" placeholder="Escriba aqui sus observaciones..."></textarea>
+                                                    <textarea maxlength="250" rows="4" cols="80" class="form-control" id="txtEntregaObs" placeholder="Escriba aqui sus observaciones..."></textarea>
                                                 </div>                               
                                             </div>
 
@@ -421,7 +421,7 @@ let controllerventa = {
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Dirección de Entrega:</label>
-                                                    <textarea rows="4" cols="80" class="form-control" id="txtEntregaDireccion" placeholder="Escriba aqui a dirección de entrega..."></textarea>
+                                                    <textarea maxlength="250" rows="4" cols="80" class="form-control" id="txtEntregaDireccion" placeholder="Escriba aqui a dirección de entrega..."></textarea>
                                                 </div>                               
                                             </div>
                                     </div>

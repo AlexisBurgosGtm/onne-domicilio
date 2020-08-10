@@ -26,7 +26,7 @@ let controllerdespacho = {
                                                                         
                         <div class="card">
                             <div class="table-responsive">
-                                <table class="table table-responsive table-striped table-hover">
+                                <table class="table table-responsive table-striped table-hover table-bordered">
                                     <thead>
                                         <tr>
                                             <td>Fecha / Documento</td>
@@ -152,6 +152,8 @@ let controllerdespacho = {
                                 <small>${rows.CODDOC} - ${rows.CORRELATIVO}</small>
                                 <br>
                                 <small class="bg-info text-white">${rows.HORA}:${rows.MINUTO}</small>
+                                <br>
+                                <small> ${classEmpleados.getNombreVendedor(rows.CODVEN)} </small>
                             </td>                          
                             <td>${rows.NOMCLIE}
                                 <br>
@@ -200,6 +202,8 @@ let controllerdespacho = {
                                 <small>${rows.CODDOC} - ${rows.CORRELATIVO}</small>
                                 <br>
                                 <small class="bg-info text-white">${rows.HORA}:${rows.MINUTO}</small>
+                                <br>
+                                <small> ${classEmpleados.getNombreVendedor(rows.CODVEN)} </small>
                             </td>
                             <td>${rows.NOMCLIE}
                                 <br>
