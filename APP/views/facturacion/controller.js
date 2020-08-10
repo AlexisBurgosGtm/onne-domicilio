@@ -443,6 +443,9 @@ let controllerventa = {
                                         </div>
                                               
                                     </div>
+                                    <div class="row">
+                                        <div id="containerWaitFinalizar"></div>
+                                    </div>
                             
                             </div>
                         </div>
@@ -514,6 +517,7 @@ let controllerventa = {
                 if(txtNit.value==''){
                     funciones.AvisoError('Especifique el cliente a quien se carga la venta');
                 }else{
+                    document.getElementById('containerWaitFinalizar').innerHTML = ''; 
                     $('#ModalFinalizarPedido').modal('show');   
                 }
                     
@@ -1059,14 +1063,15 @@ let controllerventa = {
     },
     fcnFinalizarPedido: async()=>{
         
+        let containerWaitFinalizar = document.getElementById('containerWaitFinalizar');
+        
+
         let ClienteNombre = document.getElementById('txtNombre').value;
         let dirclie = document.getElementById('txtDireccion').value; // CAMPO DIR_ENTREGA
         let obs = document.getElementById('txtEntregaObs').value; 
         let direntrega = document.getElementById('txtEntregaDireccion').value; //CAMPO MATSOLI
         let codbodega = GlobalCodBodega;
         let cmbTipoEntrega = document.getElementById('cmbEntregaTipo').value; //campo TRANSPORTE
-
-
 
         let txtFecha = new Date(document.getElementById('txtFecha').value);
         let anio = txtFecha.getFullYear();
@@ -1080,6 +1085,11 @@ let controllerventa = {
         let de = fe.getUTCDate() 
         let fechaentrega = ae + '-' + me + '-' + de;  // CAMPO DOC_FECHAENT
 
+        //obtiene hora y minutos
+        let hm = new Date();
+        let hora = hm.getHours();
+        let minuto = hm.getMinutes();
+
         let coddoc = document.getElementById('cmbCoddoc').value;
         let correlativo = document.getElementById('txtCorrelativo').value;
 
@@ -1090,7 +1100,8 @@ let controllerventa = {
         funciones.Confirmacion('¿Está seguro que desea Finalizar este Pedido')
         .then((value)=>{
             if(value==true){
-
+                
+                containerWaitFinalizar.innerHTML = GlobalLoader;
                 //,,obs,usuario,codven
                 axios.post('/ventas/documentos', {
                     token: GlobalEmpnit,
@@ -1100,6 +1111,8 @@ let controllerventa = {
                     anio:anio,
                     mes:mes,
                     fecha:fecha,
+                    hora:hora,
+                    minuto:minuto,
                     fechaentrega:fechaentrega,
                     formaentrega:cmbTipoEntrega,
                     codbodega:codbodega,
@@ -1114,6 +1127,7 @@ let controllerventa = {
                     codven:cmbVendedor.value
                 })
                 .then(async(response) => {
+                    containerWaitFinalizar.innerHTML = '';
                     const data = response.data;
                     if (data.rowsAffected[0]==0){
                         funciones.AvisoError('No se logró Guardar este pedido');
@@ -1128,6 +1142,7 @@ let controllerventa = {
                         controllerventa.fcnNuevoPedido();
                     }
                 }, (error) => {
+                    containerWaitFinalizar.innerHTML = `<div class="bg-red text-white">${error}</div>`;
                     console.log(error);
                 });           
                 

@@ -29,8 +29,7 @@ let controllerdespacho = {
                                 <table class="table table-responsive table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <td>Fecha</td>
-                                            <td>Documento</td>
+                                            <td>Fecha / Documento</td>
                                             <td>Cliente/Observaciones</td>
                                             <td>Importe</td>
                                             <td></td>
@@ -147,8 +146,13 @@ let controllerdespacho = {
         data.recordset.map((rows)=>{
             id = id + 1;
             str = str + `<tr id=${id}>
-                            <td>${rows.FECHA.replace('T00:00:00.000Z','')}</td>
-                            <td>${rows.CODDOC} - ${rows.CORRELATIVO}</td>
+                            <td>
+                                ${rows.FECHA.replace('T00:00:00.000Z','')}
+                                <br>
+                                <small>${rows.CODDOC} - ${rows.CORRELATIVO}</small>
+                                <br>
+                                <small class="bg-info text-white">${rows.HORA}:${rows.MINUTO}</small>
+                            </td>                          
                             <td>${rows.NOMCLIE}
                                 <br>
                                     <small><b class="text-danger">Entregar:</b>${rows.DIRENTREGA}</small>
@@ -190,8 +194,13 @@ let controllerdespacho = {
         data.recordset.map((rows)=>{
             id = id + 1;
             str = str + `<tr id=${id}>
-                            <td>${rows.FECHA.replace('T00:00:00.000Z','')}</td>
-                            <td>${rows.CODDOC} - ${rows.CORRELATIVO}</td>
+                            <td>
+                                ${rows.FECHA.replace('T00:00:00.000Z','')}
+                                <br>
+                                <small>${rows.CODDOC} - ${rows.CORRELATIVO}</small>
+                                <br>
+                                <small class="bg-info text-white">${rows.HORA}:${rows.MINUTO}</small>
+                            </td>
                             <td>${rows.NOMCLIE}
                                 <br>
                                     <small><b class="text-danger">Entregar:</b>${rows.DIRENTREGA}</small>

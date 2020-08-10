@@ -606,7 +606,7 @@ RESULT:
 ========================================================================== */
 /* contains root variables to be used with css (see docs) */
 :root {
-  --theme-primary: #886ab5;
+  --theme-primary: #886ab5; /*#886ab5*/
   --theme-secondary: #868e96;
   --theme-success: #1dc9b7;
   --theme-info: #2196F3;
@@ -1135,7 +1135,7 @@ html body {
 .nav-title {
   text-transform: uppercase;
   margin: 0;
-  color: #8268a8;
+  color: #eb8448; /* #8268a8 */
   padding: 1rem 2rem;
   margin-top: 1.5rem;
   font-size: 0.7rem;
