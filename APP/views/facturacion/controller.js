@@ -660,7 +660,7 @@ let controllerventa = {
 
                     let totalexento = 0;
                     if (rows.EXENTO==1){totalexento=Number(rows.PRECIO)}
-                    str += `<tr class="cursormano" id="${rows.CODPROD}"
+                    str += `<tr class="cursormano border-bottom" id="${rows.CODPROD}"
                     onclick="controllerventa.fcnAgregarProductoVenta('${rows.CODPROD}','${funciones.quitarCaracteres(rows.DESPROD,'"'," plg",true)}','${rows.CODMEDIDA}',1,${rows.EQUIVALE},${rows.EQUIVALE},${rows.COSTO},${rows.PRECIO},${totalexento});">
                     <td>
                         ${funciones.quitarCaracteres(rows.DESPROD,'"'," pulg",true)}
@@ -675,15 +675,17 @@ let controllerventa = {
                     <td>${funciones.setMoneda(rows.PRECIO || 0,'Q ')}</td>
                     <td>${rows.DESMARCA}</td>
                     <td>
-                        <button class="btn btn-sm btn-success btn-circle text-white" 
-                        onclick="controllerventa.fcnAgregarProductoVenta('${rows.CODPROD}','${funciones.quitarCaracteres(rows.DESPROD,'"'," plg",true)}','${rows.CODMEDIDA}',1,${rows.EQUIVALE},${rows.EQUIVALE},${rows.COSTO},${rows.PRECIO},${totalexento});">
-                            +
-                        </button>
+                        
                     <td>
                 </tr>`
                 })
                 tabla.innerHTML= str;
-                
+                /*
+                <button class="btn btn-sm btn-success btn-circle text-white" 
+                        onclick="controllerventa.fcnAgregarProductoVenta('${rows.CODPROD}','${funciones.quitarCaracteres(rows.DESPROD,'"'," plg",true)}','${rows.CODMEDIDA}',1,${rows.EQUIVALE},${rows.EQUIVALE},${rows.COSTO},${rows.PRECIO},${totalexento});">
+                            +
+                        </button>
+                */
             }, (error) => {
                 console.log(error);
             });
