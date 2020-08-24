@@ -42,7 +42,7 @@ router.get("/tempVentastotal", async(req,res)=>{
 
     qry = `SELECT COUNT(CODPROD) AS TOTALITEMS, SUM(TOTALCOSTO) AS TOTALCOSTO, SUM(TOTALPRECIO) AS TOTALPRECIO, SUM(ISNULL(EXENTO,0)) AS TOTALEXENTO
             FROM TEMP_VENTAS
-            WHERE (EMPNIT = '${empnit}') AND (TOKEN = '${token}') AND (CODDOC='${coddoc}') `
+            WHERE (TOKEN = '${token}') AND (CODDOC='${coddoc}') `
         
 
     execute.Query(res,qry);
@@ -57,7 +57,7 @@ router.get("/tempVentas", async(req,res)=>{
 
     let qry = '';
     qry = `SELECT TEMP_VENTAS.ID,TEMP_VENTAS.CODPROD, TEMP_VENTAS.DESPROD, TEMP_VENTAS.CODMEDIDA, TEMP_VENTAS.CANTIDAD, TEMP_VENTAS.EQUIVALE,TEMP_VENTAS.COSTO, TEMP_VENTAS.PRECIO, TEMP_VENTAS.TOTALCOSTO, TEMP_VENTAS.TOTALPRECIO
-           FROM TEMP_VENTAS WHERE (TEMP_VENTAS.EMPNIT = '${empnit}') AND (TEMP_VENTAS.CODDOC='${coddoc}') AND (TEMP_VENTAS.TOKEN = '${token}') `   
+           FROM TEMP_VENTAS WHERE (TEMP_VENTAS.CODDOC='${coddoc}') AND (TEMP_VENTAS.TOKEN = '${token}') `   
     
     execute.Query(res,qry);
     
@@ -137,7 +137,10 @@ router.post("/tempVentastodos", async(req,res)=>{
        
     const {empnit,token,coddoc} = req.body;
     
-    let qry = `DELETE FROM TEMP_VENTAS WHERE TOKEN='${token}' AND EMPNIT='${empnit}' AND CODDOC='${coddoc}'; `
+    let qryOLD = `DELETE FROM TEMP_VENTAS WHERE TOKEN='${token}' AND EMPNIT='${empnit}' AND CODDOC='${coddoc}';`
+
+    let qry = `DELETE FROM TEMP_VENTAS WHERE TOKEN='${token}' AND CODDOC='${coddoc}' `
+
     
     execute.Query(res,qry);
 
@@ -176,6 +179,14 @@ router.post("/documentos", async (req,res)=>{
     ('${token}','${empnit}',${anio},${mes},0,'${fecha}',${hora},${minuto},'${coddoc}',${correlativo},0,'${nitclie}','${nomclie}','${dirclie}',${totalcosto},${totalprecio},'DOMICILIO','O','CON','${usuario}','NO','${coddoc}','${correlativo}',${codven},${totalprecio},0,'NO','${obs}',${totalprecio},0,0,0,1,0,'${direntrega}','${fecha}',0,1);`
 
     qrydoc = `INSERT INTO COMMUNITY_DOCPRODUCTOS_DOMICILIO 
+    (TOKEN,EMPNIT,ANIO,MES,DIA,CODDOC,CORRELATIVO,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,ENTREGADOS_TOTALUNIDADES,
+        ENTREGADOS_TOTALCOSTO,ENTREGADOS_TOTALPRECIO,COSTOANTERIOR,COSTOPROMEDIO,CANTIDADBONIF,TOTALBONIF,NOSERIE,EXENTO,OBS) 
+    SELECT '${token}' AS TOKEN, '${empnit}' AS EMPNIT,${anio} AS ANIO, ${mes} AS MES,0 AS DIA, '${coddoc}' AS CODDOC,${correlativo} AS CORRELATIVO, CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,
+        TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,TOTALUNIDADES,TOTALCOSTO,TOTALPRECIO,COSTO,COSTO,BONIF,TOTALBONIF,NOSERIE,EXENTO,OBS 
+    FROM TEMP_VENTAS WHERE USUARIO='${usuario}' AND CODDOC='${coddoc}';`;
+
+
+    qrydocOLD = `INSERT INTO COMMUNITY_DOCPRODUCTOS_DOMICILIO 
     (TOKEN,EMPNIT,ANIO,MES,DIA,CODDOC,CORRELATIVO,CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,TOTALUNIDADES,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO,ENTREGADOS_TOTALUNIDADES,
         ENTREGADOS_TOTALCOSTO,ENTREGADOS_TOTALPRECIO,COSTOANTERIOR,COSTOPROMEDIO,CANTIDADBONIF,TOTALBONIF,NOSERIE,EXENTO,OBS) 
     SELECT '${token}' AS TOKEN, EMPNIT,${anio} AS ANIO, ${mes} AS MES,0 AS DIA, '${coddoc}' AS CODDOC,${correlativo} AS CORRELATIVO, CODPROD,DESPROD,CODMEDIDA,CANTIDAD,EQUIVALE,

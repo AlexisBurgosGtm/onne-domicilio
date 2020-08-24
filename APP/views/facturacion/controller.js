@@ -424,6 +424,20 @@ let controllerventa = {
                                                     <textarea maxlength="250" rows="4" cols="80" class="form-control" id="txtEntregaDireccion" placeholder="Escriba aqui a dirección de entrega..."></textarea>
                                                 </div>                               
                                             </div>
+
+                                            
+                                    
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-auto">
+                                            <div class="form-group">
+                                                <label>Enviarlo a otra Sucursal</label>
+                                                    <select class="form-control border-info shadow" id="cmbEmpresaFinal">
+
+                                                    </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <br>
@@ -519,6 +533,9 @@ let controllerventa = {
                 }else{
                     document.getElementById('containerWaitFinalizar').innerHTML = ''; 
                     $('#ModalFinalizarPedido').modal('show');   
+                    
+                    //selecciona la sucursal seleccionada como sucursal final para enviar el pedido
+                    document.getElementById('cmbEmpresaFinal').value = document.getElementById('cmbSucursalSeleccionada').value;
                 }
                     
             }
@@ -537,6 +554,7 @@ let controllerventa = {
         let btnFinalizarPedido = document.getElementById('btnFinalizarPedido');
         btnFinalizarPedido.addEventListener('click',async ()=>{
             controllerventa.fcnFinalizarPedido();
+            
         });
 
         //BUSQUEDA CLIENTES
@@ -609,6 +627,12 @@ let controllerventa = {
         controllerventa.fcnGetMunicipios('cmbClienteMunicipio');
         controllerventa.fcnGetDepartamentos('cmbClienteDepartamento');
 
+        
+        classTipoDocumentos.getEmpresas('cmbEmpresaFinal')
+        .then(()=>{
+            //
+        })
+
     },
     fcnBusquedaProducto: async function(idFiltro,idTablaResultado){
         
@@ -636,7 +660,8 @@ let controllerventa = {
 
                     let totalexento = 0;
                     if (rows.EXENTO==1){totalexento=Number(rows.PRECIO)}
-                    str += `<tr id="${rows.CODPROD}">
+                    str += `<tr class="cursormano" id="${rows.CODPROD}"
+                    onclick="controllerventa.fcnAgregarProductoVenta('${rows.CODPROD}','${funciones.quitarCaracteres(rows.DESPROD,'"'," plg",true)}','${rows.CODMEDIDA}',1,${rows.EQUIVALE},${rows.EQUIVALE},${rows.COSTO},${rows.PRECIO},${totalexento});">
                     <td>
                         ${funciones.quitarCaracteres(rows.DESPROD,'"'," pulg",true)}
                         <br>
@@ -1103,9 +1128,11 @@ let controllerventa = {
                 
                 containerWaitFinalizar.innerHTML = GlobalLoader;
                 //,,obs,usuario,codven
+                let nuevaSucursal = document.getElementById('cmbEmpresaFinal');
+
                 axios.post('/ventas/documentos', {
                     token: GlobalEmpnit,
-                    empnit: GlobalSelectedSucursal.value,
+                    empnit: nuevaSucursal.value, //GlobalSelectedSucursal.value,
                     coddoc:coddoc,
                     correlativo: correlativo,
                     anio:anio,
@@ -1138,8 +1165,11 @@ let controllerventa = {
             
                         socket.emit('ventas nueva',`Nueva Orden a nombre de ${ClienteNombre} por valor de ${GlobalTotalDocumento} quetzales`, GlobalSelectedSucursal.value);
 
-                        controllerventa.fcnEliminarTempVentas(GlobalUsuario);
-                        controllerventa.fcnNuevoPedido();
+                        controllerventa.fcnEliminarTempVentas(GlobalUsuario)
+                        .then(()=>{
+                            controllerventa.fcnNuevoPedido();
+                        })
+                        
                     }
                 }, (error) => {
                     containerWaitFinalizar.innerHTML = `<div class="bg-red text-white">${error}</div>`;
@@ -1150,23 +1180,30 @@ let controllerventa = {
         })
     },
     fcnEliminarTempVentas: async(usuario)=>{
-        let cmbCoddoc = document.getElementById('cmbCoddoc');
+        return new Promise((resolve,reject)=>{
+            let cmbCoddoc = document.getElementById('cmbCoddoc');
+            axios.post('/ventas/tempVentastodos', {
+                empnit: GlobalSelectedSucursal.value,
+                token:GlobalToken,
+                coddoc: cmbCoddoc.value
+            })
+            .then((response) => {
+                const data = response.data;
+                if (data.rowsAffected[0]==0){
+                    //funciones.AvisoError('No se logró Eliminar la lista de productos agregados');
+                    reject();
+                }else{
+                    resolve();
+                }
+            }, (error) => {
+                console.log(error);
+                reject();
+            });
 
-        axios.post('/ventas/tempVentastodos', {
-            empnit: GlobalSelectedSucursal.value,
-            token:GlobalToken,
-            coddoc: cmbCoddoc.value
         })
-        .then((response) => {
-            const data = response.data;
-            if (data.rowsAffected[0]==0){
-                funciones.AvisoError('No se logró Eliminar la lista de productos agregados');
-            }else{
-                
-            }
-        }, (error) => {
-            console.log(error);
-        });
+        
+
+
     },
     fcnNuevoPedido:async()=>{
         

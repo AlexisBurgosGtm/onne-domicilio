@@ -21,6 +21,10 @@
     bottom: 0;
 }
 
+.cursormano {
+    cursor: pointer;
+}
+
 /* BOTON FLOTANTE ESQUINA DERECHA */
 #fixed-btn2 { 
 position: fixed;
