@@ -2,6 +2,17 @@ const execute = require('./connection');
 const express = require('express');
 const router = express.Router();
 
+router.post('/tipoprecio', async(req,res)=>{
+    let empnit = req.body.empnit;
+
+    let qry = '';
+
+    qry = `SELECT TIPOPRECIO FROM COMMUNITY_EMPRESAS_SYNC WHERE EMPNIT='${empnit}'`;
+
+    execute.Query(res,qry)
+
+})
+
 // VENTANA DE VENTAS
 ///////////////////////////////////////
 
@@ -11,11 +22,14 @@ router.get("/buscarproducto", async(req,res)=>{
     let filtro = req.query.filtro;
     let token = req.query.token;
     let app = req.query.app;
+    let tipoprecio = req.query.tipoprecio;
 
     let qry ='';
 
-            qry = `SELECT TOP (20) COMMUNITY_PRODUCTOS_SYNC.CODPROD, COMMUNITY_PRODUCTOS_SYNC.DESPROD, COMMUNITY_PRECIOS_SYNC.CODMEDIDA, COMMUNITY_PRECIOS_SYNC.EQUIVALE, 
-            COMMUNITY_PRECIOS_SYNC.COSTO, COMMUNITY_PRECIOS_SYNC.PRECIO, COMMUNITY_MARCAS.DESMARCA, COMMUNITY_PRODUCTOS_SYNC.EXENTO, COMMUNITY_INVSALDO_SYNC.SALDO
+            qry = `SELECT TOP (20) COMMUNITY_PRODUCTOS_SYNC.CODPROD, COMMUNITY_PRODUCTOS_SYNC.DESPROD, COMMUNITY_PRECIOS_SYNC.CODMEDIDA, 
+            COMMUNITY_PRECIOS_SYNC.EQUIVALE, 
+            COMMUNITY_PRECIOS_SYNC.COSTO, 
+            COMMUNITY_PRECIOS_SYNC.${tipoprecio} AS PRECIO, COMMUNITY_MARCAS.DESMARCA, COMMUNITY_PRODUCTOS_SYNC.EXENTO, COMMUNITY_INVSALDO_SYNC.SALDO
         FROM COMMUNITY_PRODUCTOS_SYNC LEFT OUTER JOIN
             COMMUNITY_MARCAS ON COMMUNITY_PRODUCTOS_SYNC.TOKEN = COMMUNITY_MARCAS.TOKEN AND COMMUNITY_PRODUCTOS_SYNC.CODMARCA = COMMUNITY_MARCAS.CODMARCA AND 
             COMMUNITY_PRODUCTOS_SYNC.EMPNIT = COMMUNITY_MARCAS.EMPNIT LEFT OUTER JOIN

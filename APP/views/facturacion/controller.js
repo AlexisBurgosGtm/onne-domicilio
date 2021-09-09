@@ -89,6 +89,14 @@ let controllerventa = {
                                     <i class="fal fa-search"></i>
                                 </button>
                             </div>
+                            <div class="input-group-prepend">
+                                <select class="form-control" id="cmbTipoPrecio" disabled="true">
+                                    <option value="PRECIO">A</option>
+                                    <option value="MAYOREOA">B</option>
+                                    <option value="MAYOREOB">C</option>
+                                    <option value="MAYOREOC">D</option>
+                                </select>   
+                            </div>
                         </div>
 
                     </div>
@@ -599,7 +607,9 @@ let controllerventa = {
 
         GlobalSelectedSucursal.addEventListener('change',async ()=>{
             try {
+                controllerventa.getTipoPrecioSucursal();
                 await controllerventa.fcnCargarGridTempVentas('tblGridTempVentas');
+
             } catch (error) {
                 
             }
@@ -644,10 +654,12 @@ let controllerventa = {
             let tabla = document.getElementById(idTablaResultado);
             tabla.innerHTML = GlobalLoader;
             
+            let tipoprecio = document.getElementById('cmbTipoPrecio').value;
+
             let strClass = '';
     
             let str = ""; 
-            axios.get('/ventas/buscarproducto?empnit=' + GlobalSelectedSucursal.value + '&filtro=' + filtro + '&app=' + GlobalSistema + '&token=' + GlobalToken)
+            axios.get('/ventas/buscarproducto?empnit=' + GlobalSelectedSucursal.value + '&filtro=' + filtro + '&app=' + GlobalSistema + '&token=' + GlobalToken + '&tipoprecio=' + tipoprecio)
             .then((response) => {
                 const data = response.data;        
                 data.recordset.map((rows)=>{
@@ -1313,5 +1325,36 @@ let controllerventa = {
                                 <option value="7">ESCUINTLA</option>`;
 
        
+    },
+    getTipoPrecioSucursal:()=>{
+
+        let tipo = 'PRECIO';
+
+        let str = ""; 
+        axios.post('/ventas/tipoprecio', {empnit:GlobalSelectedSucursal.value})
+        .then((response) => {
+            const data = response.data;        
+            data.recordset.map((rows)=>{
+                str = rows.TIPOPRECIO.toString()
+            })
+            switch (str) {
+                case 'A':
+                    tipo = 'PRECIO';            
+                    break;
+                case 'B':
+                    tipo = 'MAYOREOA';
+                    break;
+                case 'C':
+                    tipo = 'MAYOREOB';
+                    break;
+                case 'D':
+                    tipo = 'MAYOREOC';
+                    break;
+            }
+            document.getElementById('cmbTipoPrecio').value = tipo;
+        }, (error) => {
+            console.log(error);
+            document.getElementById('cmbTipoPrecio').value = 'PRECIO'
+        });
     }
 }
