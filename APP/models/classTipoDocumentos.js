@@ -82,6 +82,24 @@ let classTipoDocumentos = {
 
         })
 
+    },
+    getEmpresaTipoPrecio: async (idContainer)=>{
+        return new Promise((resolve,reject)=>{
+          
+            let str = ''; //"<option value='SN'>Seleccione Sucursal</option>";
+            axios.get('/tipodocumentos/empresas_tipos?empnit=' + GlobalEmpnit)
+            .then((response) => {
+            const data = response.data;       
+            data.recordset.map((rows)=>{
+                str = rows.TIPOPRECIO       
+            })
+                resolve(str);        
+            }, (error) => {
+                reject("A");
+            });
+
+        })
+
     }
 
 }

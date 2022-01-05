@@ -19,7 +19,20 @@ router.get("/empresasdomicilio", async(req,res)=>{
     
     //EMPMESPROCESO = 1, SON LAS QUE QUE FUNCIONAN CON SERVICIO A DOMICILIO
     let qry ='';
-    qry = `SELECT EMPNIT, EMPNOMBRE FROM COMMUNITY_EMPRESAS_SYNC WHERE TOKEN='${empnit}' AND EMPMESPROCESO=1`     
+    qry = `SELECT EMPNIT, EMPNOMBRE,TIPOPRECIO FROM COMMUNITY_EMPRESAS_SYNC WHERE TOKEN='${empnit}' AND EMPMESPROCESO=1`     
+    
+    
+    execute.Query(res,qry);
+
+});
+
+// SELECCIONA LA LISTA DE EMPRESAS
+router.get("/empresas_tipos", async(req,res)=>{
+
+    const {empnit} = req.query;
+    
+    let qry ='';
+    qry = `SELECT EMPNIT, EMPNOMBRE, TIPOPRECIO FROM COMMUNITY_EMPRESAS_SYNC WHERE TOKEN='${empnit}' `     
     
     
     execute.Query(res,qry);
